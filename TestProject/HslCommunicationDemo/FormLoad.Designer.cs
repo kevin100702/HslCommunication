@@ -58,6 +58,8 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.button11 = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label1 = new System.Windows.Forms.Label();
             this.button41 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
@@ -91,11 +93,12 @@
             this.englishToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.verisonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.免责条款ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.button43 = new System.Windows.Forms.Button();
             this.button42 = new System.Windows.Forms.Button();
             this.button40 = new System.Windows.Forms.Button();
-            this.免责条款ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button44 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -456,6 +459,8 @@
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.linkLabel1);
+            this.groupBox6.Controls.Add(this.label1);
             this.groupBox6.Controls.Add(this.button41);
             this.groupBox6.Controls.Add(this.button20);
             this.groupBox6.Controls.Add(this.button18);
@@ -469,6 +474,26 @@
             this.groupBox6.TabIndex = 12;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Controls(控件)";
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(16, 279);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(110, 17);
+            this.linkLabel1.TabIndex = 6;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "HslControlsDemo";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
+            // label1
+            // 
+            this.label1.ForeColor = System.Drawing.Color.Red;
+            this.label1.Location = new System.Drawing.Point(16, 236);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(153, 38);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "控件不再更新，所有控件转移到专门的控件库。";
             // 
             // button41
             // 
@@ -527,6 +552,7 @@
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.button44);
             this.groupBox7.Controls.Add(this.button23);
             this.groupBox7.Location = new System.Drawing.Point(395, 356);
             this.groupBox7.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -781,6 +807,7 @@
             this.rToolStripMenuItem.Name = "rToolStripMenuItem";
             this.rToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
             this.rToolStripMenuItem.Text = "Richard Hu [作者]";
+            this.rToolStripMenuItem.Click += new System.EventHandler(this.rToolStripMenuItem_Click);
             // 
             // 简体中文ToolStripMenuItem
             // 
@@ -808,6 +835,13 @@
             this.verisonToolStripMenuItem.Name = "verisonToolStripMenuItem";
             this.verisonToolStripMenuItem.Size = new System.Drawing.Size(64, 21);
             this.verisonToolStripMenuItem.Text = "Verison";
+            // 
+            // 免责条款ToolStripMenuItem
+            // 
+            this.免责条款ToolStripMenuItem.Name = "免责条款ToolStripMenuItem";
+            this.免责条款ToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
+            this.免责条款ToolStripMenuItem.Text = "免责条款";
+            this.免责条款ToolStripMenuItem.Click += new System.EventHandler(this.免责条款ToolStripMenuItem_Click);
             // 
             // groupBox12
             // 
@@ -856,12 +890,16 @@
             this.button40.UseVisualStyleBackColor = true;
             this.button40.Click += new System.EventHandler(this.button40_Click);
             // 
-            // 免责条款ToolStripMenuItem
+            // button44
             // 
-            this.免责条款ToolStripMenuItem.Name = "免责条款ToolStripMenuItem";
-            this.免责条款ToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
-            this.免责条款ToolStripMenuItem.Text = "免责条款";
-            this.免责条款ToolStripMenuItem.Click += new System.EventHandler(this.免责条款ToolStripMenuItem_Click);
+            this.button44.Location = new System.Drawing.Point(19, 63);
+            this.button44.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button44.Name = "button44";
+            this.button44.Size = new System.Drawing.Size(150, 32);
+            this.button44.TabIndex = 1;
+            this.button44.Text = "EFORT-ER7BC10 (旧版)";
+            this.button44.UseVisualStyleBackColor = true;
+            this.button44.Click += new System.EventHandler(this.button44_Click);
             // 
             // FormLoad
             // 
@@ -896,6 +934,7 @@
             this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.groupBox7.ResumeLayout(false);
             this.groupBox8.ResumeLayout(false);
             this.groupBox9.ResumeLayout(false);
@@ -979,6 +1018,9 @@
         private System.Windows.Forms.Button button42;
         private System.Windows.Forms.Button button43;
         private System.Windows.Forms.ToolStripMenuItem 免责条款ToolStripMenuItem;
+        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button44;
     }
 }
 

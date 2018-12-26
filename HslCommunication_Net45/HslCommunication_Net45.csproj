@@ -35,6 +35,12 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>HslCommunication.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -172,6 +178,7 @@
     <Compile Include="Core\IMessage\AlienMessage.cs" />
     <Compile Include="Core\IMessage\AllenBradleyMessage.cs" />
     <Compile Include="Core\IMessage\EFORTMessage.cs" />
+    <Compile Include="Core\IMessage\EFORTMessagePrevious.cs" />
     <Compile Include="Core\IMessage\FetchWriteMessage.cs" />
     <Compile Include="Core\IMessage\FinsMessage.cs" />
     <Compile Include="Core\IMessage\HslMessage.cs" />
@@ -292,6 +299,7 @@
     <Compile Include="Enthernet\Redis\RedisClient.cs" />
     <Compile Include="Robot\EFORT\EfortData.cs" />
     <Compile Include="Robot\EFORT\ER7BC10.cs" />
+    <Compile Include="Robot\EFORT\ER7BC10Previous.cs" />
     <Compile Include="Serial\CRCSupport.cs" />
     <Compile Include="Serial\FP1_C72.cs" />
     <Compile Include="Serial\SerialBase.cs" />
@@ -361,6 +369,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Doc.txt" />
+    <None Include="HslCommunication.snk" />
     <None Include="imgaes\qrcode_for_gh_319218678954_258.jpg" />
     <None Include="imgaes\mm_facetoface_collect_qrcode_1525331158525.png" />
     <None Include="imgaes\WindowsForm_817_16x.png" />

@@ -729,5 +729,30 @@ namespace HslCommunicationDemo
             System.Threading.Thread.Sleep( 200 );
             Show( );
         }
+
+        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
+        {
+            OpenWebside( "https://github.com/dathlin/HslControlsDemo" );
+        }
+
+        private void rToolStripMenuItem_Click( object sender, EventArgs e )
+        {
+            using (FormAuthor form = new FormAuthor( ))
+            {
+                form.ShowDialog( );
+            }
+        }
+
+        private void button44_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (Robot.FormEfortPrevious form = new Robot.FormEfortPrevious( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
     }
 }
