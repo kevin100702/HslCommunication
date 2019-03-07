@@ -38,6 +38,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\HslCommunication_Net35\bin\Debug\HslCommunication.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\HslCommunication_Net35\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -150,6 +154,54 @@
     </Compile>
     <Compile Include="FormSerialDebug.Designer.cs">
       <DependentUpon>FormSerialDebug.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Modbus\FormInputAlien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modbus\FormInputAlien.Designer.cs">
+      <DependentUpon>FormInputAlien.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Modbus\FormModbusServer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modbus\FormModbusServer.Designer.cs">
+      <DependentUpon>FormModbusServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Modbus\FormTrustedClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modbus\FormTrustedClient.Designer.cs">
+      <DependentUpon>FormTrustedClient.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormMelsec3C.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormMelsec3C.Designer.cs">
+      <DependentUpon>FormMelsec3C.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceBinary.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceBinary.Designer.cs">
+      <DependentUpon>FormKeyenceBinary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceAscii.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceAscii.Designer.cs">
+      <DependentUpon>FormKeyenceAscii.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormOmronHostLink.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormOmronHostLink.Designer.cs">
+      <DependentUpon>FormOmronHostLink.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormS7Server.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormS7Server.Designer.cs">
+      <DependentUpon>FormS7Server.cs</DependentUpon>
     </Compile>
     <Compile Include="Redis\FormRedisSubscribe.cs">
       <SubType>Form</SubType>
@@ -321,6 +373,11 @@
     <Compile Include="Robot\FormEfort.Designer.cs">
       <DependentUpon>FormEfort.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings1.settings</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Algorithms\FormConnectPool.resx">
       <DependentUpon>FormConnectPool.cs</DependentUpon>
     </EmbeddedResource>
@@ -371,6 +428,30 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormSerialDebug.resx">
       <DependentUpon>FormSerialDebug.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modbus\FormInputAlien.resx">
+      <DependentUpon>FormInputAlien.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modbus\FormModbusServer.resx">
+      <DependentUpon>FormModbusServer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modbus\FormTrustedClient.resx">
+      <DependentUpon>FormTrustedClient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormMelsec3C.resx">
+      <DependentUpon>FormMelsec3C.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormKeyenceBinary.resx">
+      <DependentUpon>FormKeyenceBinary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormKeyenceAscii.resx">
+      <DependentUpon>FormKeyenceAscii.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormOmronHostLink.resx">
+      <DependentUpon>FormOmronHostLink.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormS7Server.resx">
+      <DependentUpon>FormS7Server.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Redis\FormRedisSubscribe.resx">
       <DependentUpon>FormRedisSubscribe.cs</DependentUpon>
@@ -466,6 +547,7 @@
     <EmbeddedResource Include="Robot\FormEfort.resx">
       <DependentUpon>FormEfort.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -475,6 +557,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Settings1.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="bitbug_favicon.ico" />

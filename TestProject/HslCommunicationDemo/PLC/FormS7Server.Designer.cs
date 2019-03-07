@@ -1,6 +1,6 @@
-﻿namespace ModbusTcpServer
+﻿namespace HslCommunicationDemo
 {
-    partial class FormModbus
+    partial class FormS7Server
     {
         /// <summary>
         /// Required designer variable.
@@ -29,13 +29,9 @@
         private void InitializeComponent( )
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label11 = new System.Windows.Forms.Label();
             this.button11 = new System.Windows.Forms.Button();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.textBox10 = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
             this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -45,13 +41,6 @@
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox9 = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button10 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
@@ -96,10 +85,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -109,14 +96,9 @@
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.comboBox2);
+            this.panel1.Controls.Add(this.label11);
             this.panel1.Controls.Add(this.button11);
-            this.panel1.Controls.Add(this.checkBox3);
-            this.panel1.Controls.Add(this.button5);
-            this.panel1.Controls.Add(this.textBox10);
-            this.panel1.Controls.Add(this.label14);
             this.panel1.Controls.Add(this.button4);
-            this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.textBox2);
             this.panel1.Controls.Add(this.label3);
@@ -125,6 +107,16 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(978, 54);
             this.panel1.TabIndex = 0;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.label11.Location = new System.Drawing.Point(342, 17);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(319, 17);
+            this.label11.TabIndex = 29;
+            this.label11.Text = "本服务器不是严格的s7协议，仅支持和HSL组件完美通信。";
             // 
             // button11
             // 
@@ -137,43 +129,6 @@
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(726, 16);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(87, 21);
-            this.checkBox3.TabIndex = 27;
-            this.checkBox3.Text = "字符串颠倒";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(510, 11);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(91, 28);
-            this.button5.TabIndex = 9;
-            this.button5.Text = "启动串口";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
-            // textBox10
-            // 
-            this.textBox10.Location = new System.Drawing.Point(445, 14);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.Size = new System.Drawing.Size(61, 23);
-            this.textBox10.TabIndex = 8;
-            this.textBox10.Text = "COM4";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(410, 17);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(44, 17);
-            this.label14.TabIndex = 7;
-            this.label14.Text = "串口：";
-            // 
             // button4
             // 
             this.button4.Enabled = false;
@@ -184,16 +139,6 @@
             this.button4.Text = "连接异形客户端";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(326, 11);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(80, 28);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "客户端过滤";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button1
             // 
@@ -211,7 +156,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(65, 23);
             this.textBox2.TabIndex = 3;
-            this.textBox2.Text = "502";
+            this.textBox2.Text = "102";
             // 
             // label3
             // 
@@ -233,7 +178,6 @@
             this.panel2.Controls.Add(this.checkBox1);
             this.panel2.Controls.Add(this.textBox1);
             this.panel2.Controls.Add(this.label1);
-            this.panel2.Controls.Add(this.groupBox4);
             this.panel2.Controls.Add(this.groupBox2);
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Location = new System.Drawing.Point(14, 95);
@@ -295,75 +239,6 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "运行日志：";
             // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.button2);
-            this.groupBox4.Controls.Add(this.textBox9);
-            this.groupBox4.Controls.Add(this.label13);
-            this.groupBox4.Controls.Add(this.textBox6);
-            this.groupBox4.Controls.Add(this.label12);
-            this.groupBox4.Controls.Add(this.label11);
-            this.groupBox4.Location = new System.Drawing.Point(546, 208);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(419, 73);
-            this.groupBox4.TabIndex = 3;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "数据订阅，当客户端修改了数据显示";
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(331, 21);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(82, 28);
-            this.button2.TabIndex = 16;
-            this.button2.Text = "开启监视";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // textBox9
-            // 
-            this.textBox9.Location = new System.Drawing.Point(221, 24);
-            this.textBox9.Name = "textBox9";
-            this.textBox9.ReadOnly = true;
-            this.textBox9.Size = new System.Drawing.Size(90, 23);
-            this.textBox9.TabIndex = 7;
-            this.textBox9.Text = "100";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(183, 27);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(32, 17);
-            this.label13.TabIndex = 6;
-            this.label13.Text = "值：";
-            // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(107, 24);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(70, 23);
-            this.textBox6.TabIndex = 5;
-            this.textBox6.Text = "100";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(9, 27);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(92, 17);
-            this.label12.TabIndex = 4;
-            this.label12.Text = "当前监视地址：";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(9, 47);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(68, 17);
-            this.label11.TabIndex = 3;
-            this.label11.Text = "写入时间：";
-            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.button10);
@@ -387,14 +262,14 @@
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Location = new System.Drawing.Point(546, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(419, 199);
+            this.groupBox2.Size = new System.Drawing.Size(419, 247);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "单数据写入测试";
             // 
             // button10
             // 
-            this.button10.Location = new System.Drawing.Point(72, 130);
+            this.button10.Location = new System.Drawing.Point(144, 207);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(60, 28);
             this.button10.TabIndex = 21;
@@ -404,7 +279,7 @@
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(6, 130);
+            this.button9.Location = new System.Drawing.Point(78, 207);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(60, 28);
             this.button9.TabIndex = 20;
@@ -414,7 +289,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(6, 164);
+            this.button8.Location = new System.Drawing.Point(12, 207);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(60, 28);
             this.button8.TabIndex = 19;
@@ -428,7 +303,7 @@
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(82, 28);
             this.button7.TabIndex = 18;
-            this.button7.Text = "离散写入";
+            this.button7.Text = "byte写入";
             this.button7.UseVisualStyleBackColor = true;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
@@ -443,7 +318,7 @@
             // 
             // button14
             // 
-            this.button14.Location = new System.Drawing.Point(126, 164);
+            this.button14.Location = new System.Drawing.Point(331, 198);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(82, 28);
             this.button14.TabIndex = 16;
@@ -565,7 +440,7 @@
             this.textBox8.Name = "textBox8";
             this.textBox8.Size = new System.Drawing.Size(132, 23);
             this.textBox8.TabIndex = 3;
-            this.textBox8.Text = "100";
+            this.textBox8.Text = "M100";
             // 
             // label10
             // 
@@ -608,7 +483,7 @@
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(82, 28);
             this.button6.TabIndex = 19;
-            this.button6.Text = "离散读取";
+            this.button6.Text = "byte读取";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
@@ -744,7 +619,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(233, 23);
             this.textBox3.TabIndex = 3;
-            this.textBox3.Text = "100";
+            this.textBox3.Text = "M100";
             // 
             // label6
             // 
@@ -778,10 +653,10 @@
             this.linkLabel1.AutoSize = true;
             this.linkLabel1.Location = new System.Drawing.Point(74, 9);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(287, 17);
+            this.linkLabel1.Size = new System.Drawing.Size(300, 17);
             this.linkLabel1.TabIndex = 3;
             this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "http://www.cnblogs.com/dathlin/p/7782315.html";
+            this.linkLabel1.Text = "https://www.cnblogs.com/dathlin/p/10425797.html";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // label4
@@ -799,9 +674,9 @@
             this.label5.ForeColor = System.Drawing.Color.Red;
             this.label5.Location = new System.Drawing.Point(540, 9);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(106, 17);
+            this.label5.Size = new System.Drawing.Size(49, 17);
             this.label5.TabIndex = 5;
-            this.label5.Text = "Modbus Tcp协议";
+            this.label5.Text = "s7 协议";
             // 
             // label20
             // 
@@ -824,21 +699,7 @@
             this.linkLabel2.Text = "创作不易，感谢打赏";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
-            // comboBox2
-            // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
-            "ABCD",
-            "BADC",
-            "CDAB",
-            "DCAB"});
-            this.comboBox2.Location = new System.Drawing.Point(611, 12);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(111, 25);
-            this.comboBox2.TabIndex = 29;
-            // 
-            // FormModbus
+            // FormS7Server
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -853,17 +714,15 @@
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.Name = "FormModbus";
+            this.Name = "FormS7Server";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Modbus虚拟服务器【同时支持Tcp和Rtu模式的服务器，数据支持线圈读写和寄存器读写，输入寄存器读取，离散输入读取】";
+            this.Text = "s7虚拟服务器【数据支持I，Q，M，DB块读写，DB块只有一个，无论是DB1.1还是DB100.1都是指同一个】";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSiemens_FormClosing);
             this.Load += new System.EventHandler(this.FormSiemens_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -918,31 +777,19 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox9;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.TextBox textBox6;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.LinkLabel linkLabel2;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.TextBox textBox10;
-        private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Label label11;
     }
 }

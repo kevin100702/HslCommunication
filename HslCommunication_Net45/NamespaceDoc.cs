@@ -580,10 +580,88 @@ namespace HslCommunication
     ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
     ///         </list>
     ///     </revision>
+    ///     <revision date="2019-1-15" version="5.7.2" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复三菱A-1E协议的读取数据的BUG错误，给大家造成的不便，非常抱歉。</item>
+    ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-2-7" version="5.7.3" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>欧姆龙读写机制更改，报警的异常不再视为失败，仍然可以解析数据。</item>
+    ///             <item>Modbus地址优化，Modbus服务器的地址读写优化。</item>
+    ///             <item>新增一个数据池类，SoftBuffer，主要用来缓存字节数组内存的，支持BCL数据类型读写。</item>
+    ///             <item>Modbus服务器的数据池更新，使用了最新的数据池类SoftBuffer。</item>
+    ///             <item>SoftBasic类新增一个GetEnumFromString方法，支持从字符串直接生成枚举值，已通过单元测试。</item>
+    ///             <item>新增一个机器人的读取接口信息IRobotNet，统一化所有的机器人的数据读取。</item>
+    ///             <item>Demo程序中增加modbus的服务器功能。</item>
+    ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-2-13" version="5.7.4" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>日志存储的线程号格式化改为D3，也即三位有效数字。</item>
+    ///             <item>日志存储事件BeforeSaveToFile里允许设置日志Cancel属性，强制当前的记录不存储。</item>
+    ///             <item>JSON库更新到12.0.1版本。</item>
+    ///             <item>SoftBasic新增一个GetTimeSpanDescription方法，用来将时间差转换成文本的方法。</item>
+    ///             <item>调整日志分析控件不随字体变化而变化。</item>
+    ///             <item>其他的代码精简优化。</item>
+    ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-2-21" version="5.8.0" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>SoftBasic修复AddArrayData方法批量添加数据异常的bug，导致曲线控件显示异常。</item>
+    ///             <item>提炼一个公共的欧姆龙辅助类，准备为串口协议做基础的通用支持。</item>
+    ///             <item>RedisHelper类代码优化精简，提炼部分的公共逻辑到NetSupport。</item>
+    ///             <item>SoftBuffer: 新增读写单个的位操作，通过位的与或非来实现。</item>
+    ///             <item>SiemensS7Server：新增一个s7协议的服务器，可以模拟PLC，进行通讯测试或是虚拟开发。</item>
+    ///             <item>其他的代码精简优化。</item>
+    ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-3-4" version="6.0.0" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>西门子虚拟PLC的ToString()方法重新实现。</item>
+    ///             <item>埃夫特机器人的json格式化修正换行符。</item>
+    ///             <item>IReadWriteNet接口添加Write(address, bytes)的方法。</item>
+    ///             <item>Modbus虚拟服务器修复写入位操作时影响后面3个位的bug。</item>
+    ///             <item>SoftBuffer内存数据池类的SetValue(byte,index)的bug修复。</item>
+    ///             <item>西门子虚拟PLC和Modbus服务器新增客户端管理，关闭时也即断开所有连接。</item>
+    ///             <item>三菱编程口协议的读取结果添加错误说明，显示原始返回信号，便于分析。</item>
+    ///             <item>三菱MC协议新增远程启动，停止，读取PLC型号的接口。</item>
+    ///             <item>新增三菱MC协议的串口的A-3C协议支持，允许读写三菱PLC的数据。</item>
+    ///             <item>新增欧姆龙HostLink协议支持，允许读写PLC数据。</item>
+    ///             <item>新增基恩士PLC的MC协议支持，包括二进制和ASCII格式，支持读写PLC的数据。</item>
+    ///             <item>所有PLC的地址说明重新规划，统一在API文档中查询。</item>
+    ///             <item>注意：三菱PLC的地址升级，有一些地址格式进行了更改，比如定时器和计数器，谨慎更新，详细地址参考最新文档。</item>
+    ///             <item>如果有公司使用了本库并愿意公开logo的，将在官网及git上进行统一显示，有意愿的联系作者。</item>
+    ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
+    ///         </list>
+    ///     </revision>
     /// </revisionHistory>
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute( )]
     public class NamespaceDoc
     {
 
     }
+
+
+    // 工作的备忘录
+    // 1. 三菱的代码提炼，重构，抽象，将MC协议核心提取，适配不同的格式要求。       =================== 基本差不多实现。已完成对三菱3C协议的适配
+    // 2. redis的协议在Python上的实现，并且测试。                                     =================== 已实现，通过单元测试
+    // 3. python新增对串口的支持并测试。
+    // 4. python新增对ab plc的支持。
+    // 5. .net端对安川机器人的支持，已经有协议文档。
+    // 6. .net端对库卡机器人的支持，http://blog.davidrobot.com/2014/09/kukavarproxy_index.html?tdsourcetag=s_pctim_aiomsg
+    // 7. .net端对三菱Qna兼容3C帧协议的支持。                                         ===================== 已实现，通过基本的测试
+    // 8. .net端对欧姆龙的Fins串口协议的支持                                           ==================== 已实现，正在最后的测试
+    // 9. .net端对基恩士PLC的串口支持 https://china.keyence.com/support/user/plc/sample-program/index.jsp            ============== 已实现，基本测试通过
+
+    // 组件之外的计划
+    // 1. 研究MQTT协议的通讯                                                           ===================== 研究完成在C#的服务器构建和客户端的数据推送操作
+    // 2. 研究 ML.NET 的机器学习的平台
+    // 3. 工业网关的深入集成
+    // 4. HslCommunication官网集成项目发布接收及案例展示平台
+    // 5. 研究PyQt的界面开发和实现
 }

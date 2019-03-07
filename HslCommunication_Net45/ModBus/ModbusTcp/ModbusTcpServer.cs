@@ -7,6 +7,8 @@ using HslCommunication;
 using HslCommunication.Core.Net;
 using System.Net.Sockets;
 using HslCommunication.Core.IMessage;
+using HslCommunication.Core.Address;
+using HslCommunication.BasicFramework;
 
 #if !NETSTANDARD2_0
 using System.IO.Ports;
@@ -23,7 +25,7 @@ namespace HslCommunication.ModBus
     /// <item>线圈，功能码对应01，05，15</item>
     /// <item>离散输入，功能码对应02</item>
     /// <item>寄存器，功能码对应03，06，16</item>
-    /// <item>输入寄存器，功能码对应04</item>
+    /// <item>输入寄存器，功能码对应04，输入寄存器在服务器端可以实现读写的操作</item>
     /// </list>
     /// </remarks>
     /// <example>
@@ -39,19 +41,19 @@ namespace HslCommunication.ModBus
         /// </summary>
         public ModbusTcpServer( )
         {
-            Coils = new bool[DataPoolLength];
-            InputCoils = new bool[DataPoolLength];
-            Register = new byte[DataPoolLength * 2];
-            InputRegister = new byte[DataPoolLength * 2];
-            hybirdLockCoil = new SimpleHybirdLock( );
-            hybirdLockInput = new SimpleHybirdLock( );
-            hybirdLockRegister = new SimpleHybirdLock( );
-            hybirdLockInputR = new SimpleHybirdLock( );
+            // 四个数据池初始化，线圈，输入线圈，寄存器，只读寄存器
+            coilBuffer = new SoftBuffer( DataPoolLength );
+            inputBuffer = new SoftBuffer( DataPoolLength );
+            registerBuffer = new SoftBuffer( DataPoolLength * 2 );
+            inputRegisterBuffer = new SoftBuffer( DataPoolLength * 2 );
+            
             lock_trusted_clients = new SimpleHybirdLock( );
-
             subscriptions = new List<ModBusMonitorAddress>( );
             subcriptionHybirdLock = new SimpleHybirdLock( );
             byteTransform = new ReverseWordTransform( );
+
+            lockModbusClient = new SimpleHybirdLock( );
+            listsModbusClient = new List<ModBusState>( );
 
 #if !NETSTANDARD2_0
             serialPort = new SerialPort( );
@@ -62,11 +64,17 @@ namespace HslCommunication.ModBus
 
         #region Public Members
 
+        /// <summary>
+        /// 当接收到来自tcp客户端或是串口的数据的时候出发的委托
+        /// </summary>
+        /// <param name="modbusTcpServer">本服务器对象</param>
+        /// <param name="data">实际的数据信息</param>
+        public delegate void DataReceivedDelegate( ModbusTcpServer modbusTcpServer, byte[] data );
 
         /// <summary>
         /// 接收到数据的时候就行触发
         /// </summary>
-        public event Action<ModbusTcpServer, byte[]> OnDataReceived;
+        public event DataReceivedDelegate OnDataReceived;
 
         /// <summary>
         /// 当前在线的客户端的数量
@@ -107,19 +115,16 @@ namespace HslCommunication.ModBus
         #endregion
 
         #region Data Pool
+        
+        private SoftBuffer coilBuffer;                // 线圈的数据池
+        private SoftBuffer inputBuffer;               // 离散输入的数据池
+        private SoftBuffer registerBuffer;            // 寄存器的数据池
+        private SoftBuffer inputRegisterBuffer;       // 输入寄存器的数据池
 
-        // 数据池，用来模拟真实的Modbus数据区块
-        private bool[] Coils;                         // 线圈池
-        private SimpleHybirdLock hybirdLockCoil;      // 线圈池的同步锁
-        private bool[] InputCoils;                    // 只读的输入线圈
-        private SimpleHybirdLock hybirdLockInput;     // 只读输入线圈的同步锁
-        private byte[] Register;                      // 寄存器池
-        private SimpleHybirdLock hybirdLockRegister;  // 寄存器池同步锁
-        private byte[] InputRegister;                 // 输入寄存器
-        private SimpleHybirdLock hybirdLockInputR;    // 输入寄存器的同步锁
         private ReverseWordTransform byteTransform;
         private const int DataPoolLength = 65536;     // 数据的长度
         private int station = 1;                      // 服务器的站号数据，对于tcp无效，对于rtu来说，如果小于0，则忽略站号信息
+        private int onlineCount = 0;                  // 在线的客户端的数量
 
         #endregion
 
@@ -144,32 +149,14 @@ namespace HslCommunication.ModBus
         {
             byte[] buffer = new byte[DataPoolLength * 6];
             // 存储线圈
-            hybirdLockCoil.Enter( );
-            for (int i = 0; i < DataPoolLength; i++)
-            {
-                if (Coils[i]) buffer[i] = 0x01;
-            }
-            hybirdLockCoil.Leave( );
-
+            Array.Copy( coilBuffer.GetBytes( ), 0, buffer, 0, DataPoolLength );
             // 存储离散信息
-            hybirdLockInput.Enter( );
-            for (int i = 0; i < DataPoolLength; i++)
-            {
-                if (InputCoils[i]) buffer[DataPoolLength + i] = 0x01;
-            }
-            hybirdLockInput.Leave( );
-
+            Array.Copy( inputBuffer.GetBytes( ), 0, buffer, DataPoolLength, DataPoolLength );
             // 存储寄存器
-            hybirdLockRegister.Enter( );
-            Array.Copy( Register, 0, buffer, DataPoolLength * 2, DataPoolLength * 2 );
-            hybirdLockRegister.Leave( );
-
+            Array.Copy( registerBuffer.GetBytes( ), 0, buffer, DataPoolLength * 2, DataPoolLength * 2 );
             // 存储输入寄存器
-            hybirdLockInputR.Enter( );
-            Array.Copy( InputRegister, 0, buffer, DataPoolLength * 4, DataPoolLength * 2 );
-            hybirdLockInputR.Leave( );
-
-
+            Array.Copy( inputRegisterBuffer.GetBytes( ), 0, buffer, DataPoolLength * 4, DataPoolLength * 2 );
+            
             System.IO.File.WriteAllBytes( path, buffer );
         }
 
@@ -194,37 +181,16 @@ namespace HslCommunication.ModBus
             byte[] buffer = System.IO.File.ReadAllBytes( path );
             if (buffer.Length < DataPoolLength * 6) throw new Exception( "File is not correct" );
 
-            // 线圈数据加载
-            hybirdLockCoil.Enter( );
-            for (int i = 0; i < DataPoolLength; i++)
-            {
-                if (buffer[i] == 0x01) Coils[i] = true;
-            }
-            hybirdLockCoil.Leave( );
-
-            // 离散寄存器信息加载
-            hybirdLockInput.Enter( );
-            for (int i = 0; i < DataPoolLength; i++)
-            {
-                if (buffer[DataPoolLength + i] == 0x01) InputCoils[i] = true;
-            }
-            hybirdLockInput.Leave( );
-
-            hybirdLockRegister.Enter( );
-            Array.Copy( buffer, DataPoolLength * 2, Register, 0, DataPoolLength * 2 );
-            hybirdLockRegister.Leave( );
-
-            hybirdLockInputR.Enter( );
-            Array.Copy( buffer, DataPoolLength * 4, InputRegister, 0, DataPoolLength * 2 );
-            hybirdLockInputR.Leave( );
+            coilBuffer.SetBytes( buffer, 0, 0, DataPoolLength );
+            inputBuffer.SetBytes( buffer, DataPoolLength, 0, DataPoolLength );
+            registerBuffer.SetBytes( buffer, DataPoolLength * 2, 0, DataPoolLength * 2 );
+            inputRegisterBuffer.SetBytes( buffer, DataPoolLength * 4, 0, DataPoolLength * 2 );
         }
 
         #endregion
 
         #region Coil Read Write
-
-
-
+        
         /// <summary>
         /// 读取地址的线圈的通断情况
         /// </summary>
@@ -234,11 +200,7 @@ namespace HslCommunication.ModBus
         public bool ReadCoil( string address )
         {
             ushort add = ushort.Parse( address );
-            bool result = false;
-            hybirdLockCoil.Enter( );
-            result = Coils[add];
-            hybirdLockCoil.Leave( );
-            return result;
+            return coilBuffer.GetByte( add ) != 0x00;
         }
 
 
@@ -252,17 +214,7 @@ namespace HslCommunication.ModBus
         public bool[] ReadCoil( string address, ushort length )
         {
             ushort add = ushort.Parse( address );
-            bool[] result = new bool[length];
-            hybirdLockCoil.Enter( );
-            for (int i = add; i < add + length; i++)
-            {
-                if (i <= ushort.MaxValue)
-                {
-                    result[i - add] = Coils[i];
-                }
-            }
-            hybirdLockCoil.Leave( );
-            return result;
+            return coilBuffer.GetBytes( add, length ).Select( m => m != 0x00 ).ToArray( );
         }
 
         /// <summary>
@@ -275,9 +227,7 @@ namespace HslCommunication.ModBus
         public void WriteCoil( string address, bool data )
         {
             ushort add = ushort.Parse( address );
-            hybirdLockCoil.Enter( );
-            Coils[add] = data;
-            hybirdLockCoil.Leave( );
+            coilBuffer.SetValue( (byte)(data ? 0x01 : 0x00), add );
         }
 
         /// <summary>
@@ -290,17 +240,9 @@ namespace HslCommunication.ModBus
         public void WriteCoil( string address, bool[] data )
         {
             if (data == null) return;
-            ushort add = ushort.Parse( address );
 
-            hybirdLockCoil.Enter( );
-            for (int i = add; i < add + data.Length; i++)
-            {
-                if (i <= ushort.MaxValue)
-                {
-                    Coils[i] = data[i - add];
-                }
-            }
-            hybirdLockCoil.Leave( );
+            ushort add = ushort.Parse( address );
+            coilBuffer.SetBytes( data.Select( m => (byte)(m ? 0x01 : 0x00) ).ToArray( ), add );
         }
 
 
@@ -317,12 +259,8 @@ namespace HslCommunication.ModBus
         /// <exception cref="IndexOutOfRangeException"></exception>
         public bool ReadDiscrete( string address )
         {
-            bool result = false;
             ushort add = ushort.Parse( address );
-            hybirdLockInput.Enter( );
-            result = InputCoils[add];
-            hybirdLockInput.Leave( );
-            return result;
+            return inputBuffer.GetByte( add ) != 0x00;
         }
 
 
@@ -335,18 +273,8 @@ namespace HslCommunication.ModBus
         /// <exception cref="IndexOutOfRangeException"></exception>
         public bool[] ReadDiscrete( string address, ushort length )
         {
-            bool[] result = new bool[length];
             ushort add = ushort.Parse( address );
-            hybirdLockInput.Enter( );
-            for (int i = add; i < add + length; i++)
-            {
-                if (i <= ushort.MaxValue)
-                {
-                    result[i - add] = InputCoils[i];
-                }
-            }
-            hybirdLockInput.Leave( );
-            return result;
+            return inputBuffer.GetBytes( add, length ).Select( m => m != 0x00 ).ToArray( );
         }
 
         /// <summary>
@@ -358,9 +286,7 @@ namespace HslCommunication.ModBus
         public void WriteDiscrete( string address, bool data )
         {
             ushort add = ushort.Parse( address );
-            hybirdLockInput.Enter( );
-            InputCoils[add] = data;
-            hybirdLockInput.Leave( );
+            inputBuffer.SetValue( (byte)(data ? 0x01 : 0x00), add );
         }
 
         /// <summary>
@@ -372,16 +298,9 @@ namespace HslCommunication.ModBus
         public void WriteDiscrete( string address, bool[] data )
         {
             if (data == null) return;
+
             ushort add = ushort.Parse( address );
-            hybirdLockInput.Enter( );
-            for (int i = add; i < add + data.Length; i++)
-            {
-                if (i <= ushort.MaxValue)
-                {
-                    InputCoils[i] = data[i - add];
-                }
-            }
-            hybirdLockInput.Leave( );
+            inputBuffer.SetBytes( data.Select( m => (byte)(m ? 0x01 : 0x00) ).ToArray( ), add );
         }
 
 
@@ -400,25 +319,15 @@ namespace HslCommunication.ModBus
         {
             byte[] buffer = new byte[length * 2];
 
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             
             if (mAddress.Function == ModbusInfo.ReadInputRegister)
             {
-                hybirdLockInputR.Enter( );
-                for (int i = 0; i < buffer.Length; i++)
-                {
-                    buffer[i] = InputRegister[mAddress.Address * 2 + i];
-                }
-                hybirdLockInputR.Leave( );
+                buffer = inputRegisterBuffer.GetBytes( mAddress.Address * 2, length * 2 );
             }
-            else
+            else if(mAddress.Function == ModbusInfo.ReadRegister)
             {
-                hybirdLockRegister.Enter( );
-                for (int i = 0; i < buffer.Length; i++)
-                {
-                    buffer[i] = Register[mAddress.Address * 2 + i];
-                }
-                hybirdLockRegister.Leave( );
+                buffer = registerBuffer.GetBytes( mAddress.Address * 2, length * 2 );
             }
             return buffer;
         }
@@ -445,7 +354,7 @@ namespace HslCommunication.ModBus
         public short[] ReadInt16( string address, ushort length )
         {
             short[] result = new short[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadInt16( mAddress.AddressAdd( i ).ToString( ) );
@@ -474,7 +383,7 @@ namespace HslCommunication.ModBus
         public ushort[] ReadUInt16( string address, ushort length )
         {
             ushort[] result = new ushort[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadUInt16( mAddress.AddressAdd( i ).ToString( ) );
@@ -504,7 +413,7 @@ namespace HslCommunication.ModBus
         public int[] ReadInt32( string address, ushort length )
         {
             int[] result = new int[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadInt32( mAddress.AddressAdd( i * 2 ).ToString( ) );
@@ -535,7 +444,7 @@ namespace HslCommunication.ModBus
         public uint[] ReadUInt32( string address, ushort length )
         {
             uint[] result = new uint[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadUInt32( mAddress.AddressAdd( i * 2 ).ToString( ) );
@@ -564,7 +473,7 @@ namespace HslCommunication.ModBus
         public float[] ReadFloat( string address, ushort length )
         {
             float[] result = new float[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadFloat( mAddress.AddressAdd( i * 2 ).ToString( ) );
@@ -595,7 +504,7 @@ namespace HslCommunication.ModBus
         public long[] ReadInt64( string address, ushort length )
         {
             long[] result = new long[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadInt64( mAddress.AddressAdd( i * 4 ).ToString( ) );
@@ -625,7 +534,7 @@ namespace HslCommunication.ModBus
         public ulong[] ReadUInt64( string address, ushort length )
         {
             ulong[] result = new ulong[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadUInt64( mAddress.AddressAdd( i * 4 ).ToString( ) );
@@ -654,7 +563,7 @@ namespace HslCommunication.ModBus
         public double[] ReadDouble( string address, ushort length )
         {
             double[] result = new double[length];
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             for (int i = 0; i < length; i++)
             {
                 result[i] = ReadDouble( mAddress.AddressAdd( i * 4 ).ToString( ) );
@@ -672,18 +581,16 @@ namespace HslCommunication.ModBus
         public string ReadString( string address, ushort length )
         {
             string str = string.Empty;
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             if (mAddress.Function == ModbusInfo.ReadInputRegister)
             {
-                hybirdLockInputR.Enter( );
-                str = byteTransform.TransString( InputRegister, mAddress.Address * 2, length * 2, Encoding.ASCII );
-                hybirdLockInputR.Leave( );
+                byte[] buffer = inputRegisterBuffer.GetBytes( mAddress.Address * 2, length * 2 );
+                str = byteTransform.TransString( buffer, 0, length * 2, Encoding.ASCII );
             }
-            else
+            else if (mAddress.Function == ModbusInfo.ReadRegister)
             {
-                hybirdLockRegister.Enter( );
-                str = byteTransform.TransString( Register, mAddress.Address * 2, length * 2, Encoding.ASCII );
-                hybirdLockRegister.Leave( );
+                byte[] buffer = registerBuffer.GetBytes( mAddress.Address * 2, length * 2 );
+                str = byteTransform.TransString( buffer, 0, length * 2, Encoding.ASCII );
             }
 
             return str;
@@ -705,24 +612,14 @@ namespace HslCommunication.ModBus
         /// <param name="value">字节数据</param>
         public void Write( string address, byte[] value )
         {
-            ModbusAddress mAddress = new ModbusAddress( address );
+            ModbusAddress mAddress = new ModbusAddress( address, ModbusInfo.ReadRegister );
             if (mAddress.Function == ModbusInfo.ReadInputRegister)
             {
-                hybirdLockInputR.Enter( );
-                for (int i = 0; i < value.Length; i++)
-                {
-                    InputRegister[mAddress.Address * 2 + i] = value[i];
-                }
-                hybirdLockInputR.Leave( );
+                inputRegisterBuffer.SetBytes( value, mAddress.Address * 2 );
             }
-            else
+            else if(mAddress.Function == ModbusInfo.ReadRegister)
             {
-                hybirdLockRegister.Enter( );
-                for (int i = 0; i < value.Length; i++)
-                {
-                    Register[mAddress.Address * 2 + i] = value[i];
-                }
-                hybirdLockRegister.Leave( );
+                registerBuffer.SetBytes( value, mAddress.Address * 2 );
             }
         }
 
@@ -931,8 +828,42 @@ namespace HslCommunication.ModBus
 
         #endregion
 
-        #region NetServer Override
+        #region Online Managment
 
+        private List<ModBusState> listsModbusClient;
+        private SimpleHybirdLock lockModbusClient;
+
+        private void AddModbusClient( ModBusState modBusState )
+        {
+            lockModbusClient.Enter( );
+            listsModbusClient.Add( modBusState );
+            lockModbusClient.Leave( );
+        }
+
+        private void RemoveModbusClient( ModBusState modBusState )
+        {
+            lockModbusClient.Enter( );
+            listsModbusClient.Remove( modBusState );
+            lockModbusClient.Leave( );
+        }
+
+        /// <summary>
+        /// 关闭之后进行的操作
+        /// </summary>
+        protected override void CloseAction( )
+        {
+            lockModbusClient.Enter( );
+            for (int i = 0; i < listsModbusClient.Count; i++)
+            {
+                listsModbusClient[i]?.WorkSocket?.Close( );
+            }
+            listsModbusClient.Clear( );
+            lockModbusClient.Leave( );
+        }
+        
+        #endregion
+
+        #region NetServer Override
 
         /// <summary>
         /// 当接收到了新的请求的时候执行的操作
@@ -976,6 +907,7 @@ namespace HslCommunication.ModBus
                 {
                     state.WorkSocket.BeginReceive( state.HeadByte, 0, 6, SocketFlags.None, new AsyncCallback( ModbusHeadReveiveCallback ), state );
                     System.Threading.Interlocked.Increment( ref onlineCount );
+                    AddModbusClient( state );
                 }
                 catch (Exception ex)
                 {
@@ -1021,6 +953,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1042,6 +975,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1070,6 +1004,7 @@ namespace HslCommunication.ModBus
                         {
                             LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                             System.Threading.Interlocked.Decrement( ref onlineCount );
+                            RemoveModbusClient( state );
                         }
                         return;
                     }
@@ -1082,6 +1017,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteWarn( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ) + StringResources.Language.ModbusMatchFailed );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                 }
             }
@@ -1111,6 +1047,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1135,6 +1072,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteError( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ) );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1157,6 +1095,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1176,6 +1115,7 @@ namespace HslCommunication.ModBus
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
                         System.Threading.Interlocked.Decrement( ref onlineCount );
+                        RemoveModbusClient( state );
                     }
                     return;
                 }
@@ -1201,6 +1141,7 @@ namespace HslCommunication.ModBus
                     if (state.IsModbusOffline( ))
                     {
                         LogNet?.WriteException( ToString( ), string.Format( StringResources.Language.ClientOfflineInfo, state.IpEndPoint ), ex );
+                        RemoveModbusClient( state );
                         state = null;
                         System.Threading.Interlocked.Decrement( ref onlineCount );
                     }
@@ -1515,7 +1456,7 @@ namespace HslCommunication.ModBus
         /// <summary>
         /// 新增一个数据监视的任务，针对的是寄存器
         /// </summary>
-        /// <param name="monitor"></param>
+        /// <param name="monitor">监视地址对象</param>
         public void AddSubcription( ModBusMonitorAddress monitor )
         {
             subcriptionHybirdLock.Enter( );
@@ -1539,8 +1480,8 @@ namespace HslCommunication.ModBus
         /// 在数据变更后，进行触发是否产生订阅
         /// </summary>
         /// <param name="address">数据地址</param>
-        /// <param name="before"></param>
-        /// <param name="after"></param>
+        /// <param name="before">修改之前的数</param>
+        /// <param name="after">修改之后的数</param>
         private void OnRegisterBeforWrite( ushort address, short before, short after )
         {
             subcriptionHybirdLock.Enter( );
@@ -1754,8 +1695,8 @@ namespace HslCommunication.ModBus
         /// <summary>
         /// 将Modbus-Tcp的报文转换成核心的Modbus报文，就是移除报文头
         /// </summary>
-        /// <param name="modbusTcp"></param>
-        /// <returns></returns>
+        /// <param name="modbusTcp">Modbus-Tcp格式的报文信息</param>
+        /// <returns>modbus核心报文</returns>
         private byte[] ModbusTcpTransModbusCore( byte[] modbusTcp )
         {
             byte[] buffer = new byte[modbusTcp.Length - 6];
@@ -1769,9 +1710,9 @@ namespace HslCommunication.ModBus
         /// <summary>
         /// 根据Modbus数据信息生成Modbus-Tcp数据信息
         /// </summary>
-        /// <param name="modbusData"></param>
-        /// <param name="modbusOrigin"></param>
-        /// <returns></returns>
+        /// <param name="modbusData">Modbus的核心报文信息</param>
+        /// <param name="modbusOrigin">modbus的标识序号</param>
+        /// <returns>modbus-Tcp报文</returns>
         private byte[] ModbusCoreTransModbusTcp( byte[] modbusData, byte[] modbusOrigin )
         {
             byte[] buffer = new byte[modbusData.Length + 6];
@@ -1787,8 +1728,8 @@ namespace HslCommunication.ModBus
         /// <summary>
         /// 将Modbus-Rtu的报文转成核心的Modbus报文，移除了CRC校验
         /// </summary>
-        /// <param name="modbusRtu"></param>
-        /// <returns></returns>
+        /// <param name="modbusRtu">Modbus-Rtu报文</param>
+        /// <returns>Modbus核心报文</returns>
         private byte[] ModbusRtuTransModbusCore( byte[] modbusRtu )
         {
             byte[] buffer = new byte[modbusRtu.Length - 2];
@@ -1803,8 +1744,8 @@ namespace HslCommunication.ModBus
         /// <summary>
         /// 根据Modbus数据信息生成Modbus-Rtu数据信息
         /// </summary>
-        /// <param name="modbusData"></param>
-        /// <returns></returns>
+        /// <param name="modbusData">Modbus核心报文</param>
+        /// <returns>modbus-Rtu报文</returns>
         private byte[] ModbusCoreTransModbusRtu( byte[] modbusData )
         {
             return Serial.SoftCRC16.CRC16( modbusData );
@@ -1944,12 +1885,6 @@ namespace HslCommunication.ModBus
 #endif
 
 
-
-        #endregion
-
-        #region Private Member
-
-        private int onlineCount = 0;               // 在线的客户端的数量
 
         #endregion
 

@@ -42,9 +42,8 @@
     <AssemblyOriginatorKeyFile>HslCommunication.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -183,6 +182,7 @@
     <Compile Include="Core\IMessage\FinsMessage.cs" />
     <Compile Include="Core\IMessage\HslMessage.cs" />
     <Compile Include="Core\IMessage\INetMessage.cs" />
+    <Compile Include="Core\IMessage\KukaVarProxyMessage.cs" />
     <Compile Include="Core\IMessage\MelsecA1EBinaryMessage.cs" />
     <Compile Include="Core\IMessage\MelsecQnA3EAsciiMessage.cs" />
     <Compile Include="Core\IMessage\MelsecQnA3EBinaryMessage.cs" />
@@ -191,9 +191,11 @@
     <Compile Include="Core\Net\ClassNetHandle.cs" />
     <Compile Include="Core\Net\CommunicationProtocol.cs" />
     <Compile Include="Core\Net\IReadWriteNet.cs" />
+    <Compile Include="Core\Net\IRobotNet.cs" />
     <Compile Include="Core\Net\NetSupport.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkAlienClient.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkBase.cs" />
+    <Compile Include="Core\Net\NetworkBase\NetworkDataServerBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkDeviceBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkDoubleBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkFileServerBase.cs" />
@@ -262,7 +264,7 @@
     <Compile Include="LogNet\View\LogNetAnalysisControl.Designer.cs">
       <DependentUpon>LogNetAnalysisControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ModBus\ModbusAddress.cs" />
+    <Compile Include="Core\Address\ModbusAddress.cs" />
     <Compile Include="ModBus\ModbusAscii\ModbusAscii.cs" />
     <Compile Include="ModBus\ModbusInfo.cs" />
     <Compile Include="ModBus\ModBusMonitorAddress.cs" />
@@ -274,8 +276,11 @@
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyHelper.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyNet.cs" />
+    <Compile Include="Profinet\Keyence\KeyenceMcAsciiNet.cs" />
+    <Compile Include="Profinet\Keyence\KeyenceMcNet.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1EDataType.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1ENet.cs" />
+    <Compile Include="Profinet\Melsec\MelsecA3CNet1.cs" />
     <Compile Include="Profinet\Melsec\MelsecFxLinks.cs" />
     <Compile Include="Profinet\Melsec\MelsecHelper.cs" />
     <Compile Include="Profinet\Melsec\MelsecMcAsciiNet.cs" />
@@ -285,11 +290,14 @@
     <Compile Include="Profinet\Melsec\MelsecFxSerial.cs" />
     <Compile Include="Profinet\Omron\OmronFinsDataType.cs" />
     <Compile Include="Profinet\Omron\OmronFinsNet.cs" />
+    <Compile Include="Profinet\Omron\OmronFinsNetHelper.cs" />
+    <Compile Include="Profinet\Omron\OmronHostLink.cs" />
     <Compile Include="Profinet\Panasonic\PanasonicMewtocol.cs" />
     <Compile Include="Profinet\Siemens\SiemensFetchWriteNet.cs" />
     <Compile Include="Profinet\Siemens\SiemensPLCS.cs" />
     <Compile Include="Profinet\Siemens\SiemensPPI.cs" />
     <Compile Include="Profinet\Siemens\SiemensS7Net.cs" />
+    <Compile Include="Profinet\Siemens\SiemensS7Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -411,6 +419,8 @@
     <None Include="imgaes\abstr1.png" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Robot\KUKA\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

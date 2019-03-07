@@ -27,6 +27,84 @@ namespace HslCommunication.Profinet.Siemens
     /// 一个西门子的客户端类，使用S7协议来进行数据交互 ->
     /// A Siemens client class that uses the S7 protocol for data interaction
     /// </summary>
+    /// <remarks>
+    /// 地址支持的列表如下：
+    /// <list type="table">
+    ///   <listheader>
+    ///     <term>地址名称</term>
+    ///     <term>地址代号</term>
+    ///     <term>示例</term>
+    ///     <term>地址进制</term>
+    ///     <term>字操作</term>
+    ///     <term>位操作</term>
+    ///     <term>备注</term>
+    ///   </listheader>
+    ///   <item>
+    ///     <term>中间寄存器</term>
+    ///     <term>M</term>
+    ///     <term>M100,M200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>输入寄存器</term>
+    ///     <term>I</term>
+    ///     <term>I100,I200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>输出寄存器</term>
+    ///     <term>Q</term>
+    ///     <term>Q100,Q200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>DB块寄存器</term>
+    ///     <term>DB</term>
+    ///     <term>DB1.100,DB1.200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>V寄存器</term>
+    ///     <term>V</term>
+    ///     <term>V100,V200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term>V寄存器本质就是DB块1</term>
+    ///   </item>
+    ///   <item>
+    ///     <term>定时器的值</term>
+    ///     <term>T</term>
+    ///     <term>T100,T200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term>未测试通过</term>
+    ///   </item>
+    ///   <item>
+    ///     <term>计数器的值</term>
+    ///     <term>C</term>
+    ///     <term>C100,C200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term>未测试通过</term>
+    ///   </item>
+    /// </list>
+    /// <note type="important">对于200smartPLC的V区，就是DB1.X，例如，V100=DB1.100</note>
+    /// </remarks>
     /// <example>
     /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\SiemensS7Net.cs" region="Usage" title="简单的短连接使用" />
     /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\SiemensS7Net.cs" region="Usage2" title="简单的长连接使用" />
@@ -702,7 +780,7 @@ namespace HslCommunication.Profinet.Siemens
         /// Start address, such as M100,I0,Q0,DB2.100</param>
         /// <returns>解析数据地址，解析出地址类型，起始地址，DB块的地址 ->
         /// Parse data address, parse out address type, start address, db block address</returns>
-        private static OperateResult<byte, int, ushort> AnalysisAddress( string address )
+        public static OperateResult<byte, int, ushort> AnalysisAddress( string address )
         {
             var result = new OperateResult<byte, int, ushort>( );
             try
@@ -844,7 +922,7 @@ namespace HslCommunication.Profinet.Siemens
                 // 语法标记，ANY -> Syntax tag, any
                 _PLCCommand[21 + ii * 12] = 0x10;
                 // 按字为单位 -> by word
-                _PLCCommand[22 + ii * 12] = 0x02;
+                _PLCCommand[22 + ii * 12] = 0x02; // (byte)(address[ii].Content1 == 0x1D ? 0x1D : address[ii].Content1 == 0x1C ? 0x1C : 0x02);
                 // 访问数据的个数 -> Number of Access data
                 _PLCCommand[23 + ii * 12] = (byte)(length[ii] / 256);
                 _PLCCommand[24 + ii * 12] = (byte)(length[ii] % 256);

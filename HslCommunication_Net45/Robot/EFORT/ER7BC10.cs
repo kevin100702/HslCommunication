@@ -1,4 +1,5 @@
-﻿using HslCommunication.Core;
+﻿using HslCommunication.BasicFramework;
+using HslCommunication.Core;
 using HslCommunication.Core.IMessage;
 using HslCommunication.Core.Net;
 using System;
@@ -13,9 +14,8 @@ namespace HslCommunication.Robot.EFORT
     /// <summary>
     /// 埃夫特机器人对应型号为ER7B-C10，此协议为定制版，使用前请测试
     /// </summary>
-    public class ER7BC10 : NetworkDoubleBase<EFORTMessage, RegularByteTransform>
+    public class ER7BC10 : NetworkDoubleBase<EFORTMessage, RegularByteTransform>, IRobotNet
     {
-
         #region Constructor
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace HslCommunication.Robot.EFORT
             IpAddress = ipAddress;
             Port = port;
 
-            hybirdLock = new SimpleHybirdLock( );                                 // 实例化一个数据锁
+            softIncrementCount = new SoftIncrementCount( ushort.MaxValue );
         }
 
         #endregion
@@ -46,28 +46,12 @@ namespace HslCommunication.Robot.EFORT
             Encoding.ASCII.GetBytes( "MessageHead" ).CopyTo( command, 0 );
             BitConverter.GetBytes( (ushort)command.Length ).CopyTo( command, 16 );
             BitConverter.GetBytes( (ushort)1001 ).CopyTo( command, 18 );
-            BitConverter.GetBytes( GetHeartBeat( ) ).CopyTo( command, 20 );
+            BitConverter.GetBytes( (ushort)softIncrementCount.GetCurrentValue( ) ).CopyTo( command, 20 );
             Encoding.ASCII.GetBytes( "MessageTail" ).CopyTo( command, 22);
 
             return command;
         }
-
-        private ushort GetHeartBeat( )
-        {
-            ushort result = 0;
-            hybirdLock.Enter( );
-
-            result = (ushort)heartbeat;
-            heartbeat++;
-            if (heartbeat > ushort.MaxValue)
-            {
-                heartbeat = 0;
-            }
-
-            hybirdLock.Leave( );
-            return result;
-        }
-
+        
         #endregion
 
         #region Read Support
@@ -93,7 +77,17 @@ namespace HslCommunication.Robot.EFORT
             return EfortData.PraseFrom( read.Content );
         }
 
+        /// <summary>
+        /// 读取机器人的详细信息，返回JSON格式的字符串信息
+        /// </summary>
+        /// <returns>结果数据信息</returns>
+        public OperateResult<string> ReadJsonString( )
+        {
+            OperateResult<EfortData> read = Read( );
+            if (!read.IsSuccess) return OperateResult.CreateFailedResult<string>( read );
 
+            return OperateResult.CreateSuccessResult( Newtonsoft.Json.JsonConvert.SerializeObject( read.Content, Newtonsoft.Json.Formatting.Indented ) );
+        }
 
 
         #endregion
@@ -101,7 +95,7 @@ namespace HslCommunication.Robot.EFORT
         #region Private Member
 
         private int heartbeat = 0;
-        private SimpleHybirdLock hybirdLock;             // 心跳值的锁
+        private SoftIncrementCount softIncrementCount;              // 自增消息的对象
 
         #endregion
 

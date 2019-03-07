@@ -268,7 +268,28 @@ namespace HslCommunication_Net45.Test.BasicFramework
             Assert.IsTrue( SoftBasic.IsTwoBytesEquel( b2, buffer ) );
         }
 
+        [TestMethod]
+        public void GetEnumFromStringTest( )
+        {
+            System.IO.FileMode fileMode = SoftBasic.GetEnumFromString<System.IO.FileMode>( "Append" );
+            Assert.IsTrue( fileMode == System.IO.FileMode.Append );
+        }
 
+        [TestMethod]
+        public void GetTimeSpanDescriptionTest( )
+        {
+            string size = SoftBasic.GetTimeSpanDescription( TimeSpan.FromMinutes( 12.3d ) );
+            Assert.IsTrue( size == "12.3 分钟" );
+
+            size = SoftBasic.GetTimeSpanDescription( TimeSpan.FromSeconds( 12.3d ) );
+            Assert.IsTrue( size == "12 秒" );
+
+            size = SoftBasic.GetTimeSpanDescription( TimeSpan.FromHours( 12.3d ) );
+            Assert.IsTrue( size == "12.3 小时" );
+
+            size = SoftBasic.GetTimeSpanDescription( TimeSpan.FromDays( 12.3d ) );
+            Assert.IsTrue( size == "12.3 天" );
+        }
     }
 
 

@@ -13,6 +13,10 @@ namespace HslCommunication.BasicFramework
     /// 这个类可以实现什么功能呢，就是你有一个大的数组，作为你的应用程序的中间数据池，允许你往byte[]数组里存放指定长度的子byte[]数组，也允许从里面拿数据，
     /// 这些操作都是线程安全的，当然，本类扩展了一些额外的方法支持，也可以直接赋值或获取基本的数据类型对象。
     /// </remarks>
+    /// <example>
+    /// 此处举例一些数据的读写说明，可以此处的数据示例。
+    /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\BasicFramework\SoftBufferExample.cs" region="SoftBufferExample1" title="SoftBuffer示例" />
+    /// </example>
     public class SoftBuffer
     {
         #region Constructor
@@ -41,26 +45,118 @@ namespace HslCommunication.BasicFramework
 
         #endregion
 
-        #region Byte Support
+        #region Bool Operate Support
+
+        /// <summary>
+        /// 设置指定的位置的数据块，如果超出，则丢弃数据
+        /// </summary>
+        /// <param name="value">数据块信息</param>
+        /// <param name="destIndex">目标存储的索引</param>
+        public void SetBool( bool value, int destIndex )
+        {
+            if (destIndex < capacity * 8 && destIndex >= 0 )
+            {
+                hybirdLock.Enter( );
+
+                int byteIndex = destIndex / 8;
+                int offect = destIndex % 8;
+
+                if (value)
+                {
+                    buffer[byteIndex] = (byte)(buffer[byteIndex] | getOrByte( offect ));
+                }
+                else
+                {
+                    buffer[byteIndex] = (byte)(buffer[byteIndex] & getAndByte( offect ));
+                }
+
+                hybirdLock.Leave( );
+            }
+        }
+
+
+        /// <summary>
+        /// 获取指定的位置的bool值，如果超出，则引发异常
+        /// </summary>
+        /// <param name="destIndex">目标存储的索引</param>
+        public bool GetBool( int destIndex )
+        {
+            bool result = false;
+            if (destIndex < capacity * 8 && destIndex >= 0)
+            {
+                hybirdLock.Enter( );
+
+                int byteIndex = destIndex / 8;
+                int offect = destIndex % 8;
+
+                result = (buffer[byteIndex] & getOrByte( offect )) == getOrByte( offect );
+
+                hybirdLock.Leave( );
+            }
+            else
+            {
+                throw new IndexOutOfRangeException( "destIndex" );
+            }
+
+            return result;
+        }
+
+        private byte getAndByte(int offect )
+        {
+            switch (offect)
+            {
+                case 0: return 0xFE;
+                case 1: return 0xFD;
+                case 2: return 0xFB;
+                case 3: return 0xF7;
+                case 4: return 0xEF;
+                case 5: return 0xDF;
+                case 6: return 0xBF;
+                case 7: return 0x7F;
+                default: return 0xFF;
+            }
+        }
+
+
+        private byte getOrByte( int offect )
+        {
+            switch (offect)
+            {
+                case 0: return 0x01;
+                case 1: return 0x02;
+                case 2: return 0x04;
+                case 3: return 0x08;
+                case 4: return 0x10;
+                case 5: return 0x20;
+                case 6: return 0x40;
+                case 7: return 0x80;
+                default: return 0x00;
+            }
+        }
+        
+
+        #endregion
+
+        #region Byte Operate Support
 
         /// <summary>
         /// 设置指定的位置的数据块，如果超出，则丢弃数据
         /// </summary>
         /// <param name="data">数据块信息</param>
-        /// <param name="index">存储的索引</param>
-        public void SetBytes( byte[] data, int index )
+        /// <param name="destIndex">目标存储的索引</param>
+        public void SetBytes( byte[] data, int destIndex )
         {
-            if (index < capacity && index >= 0 && data != null)
+            if (destIndex < capacity && destIndex >= 0 && data != null)
             {
                 hybirdLock.Enter( );
 
-                if ((data.Length + index) > buffer.Length)
+                if ((data.Length + destIndex) > buffer.Length)
                 {
-                    Array.Copy( data, 0, buffer, index, (buffer.Length - index) );
+                    Array.Copy( data, 0, buffer, destIndex, (buffer.Length - destIndex) );
                 }
                 else
                 {
-                    data.CopyTo( buffer, index );
+                    data.CopyTo( buffer, destIndex );
                 }
 
                 hybirdLock.Leave( );
@@ -71,24 +167,46 @@ namespace HslCommunication.BasicFramework
         /// 设置指定的位置的数据块，如果超出，则丢弃数据
         /// </summary>
         /// <param name="data">数据块信息</param>
-        /// <param name="index">存储的索引</param>
+        /// <param name="destIndex">目标存储的索引</param>
         /// <param name="length">准备拷贝的数据长度</param>
-        public void SetBytes( byte[] data, int index, int length )
+        public void SetBytes( byte[] data, int destIndex, int length )
         {
-            if (index < capacity && index >= 0 && data != null)
+            if (destIndex < capacity && destIndex >= 0 && data != null)
             {
                 if (length > data.Length) length = data.Length;
 
                 hybirdLock.Enter( );
 
-                if ((length + index) > buffer.Length)
+                if ((length + destIndex) > buffer.Length)
                 {
-                    Array.Copy( data, 0, buffer, index, (buffer.Length - index) );
+                    Array.Copy( data, 0, buffer, destIndex, (buffer.Length - destIndex) );
                 }
                 else
                 {
-                    Array.Copy( data, 0, buffer, index, length );
+                    Array.Copy( data, 0, buffer, destIndex, length );
                 }
+
+                hybirdLock.Leave( );
+            }
+        }
+
+        /// <summary>
+        /// 设置指定的位置的数据块，如果超出，则丢弃数据
+        /// </summary>
+        /// <param name="data">数据块信息</param>
+        /// <param name="sourceIndex">Data中的起始位置</param>
+        /// <param name="destIndex">目标存储的索引</param>
+        /// <param name="length">准备拷贝的数据长度</param>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public void SetBytes( byte[] data, int sourceIndex, int destIndex, int length )
+        {
+            if (destIndex < capacity && destIndex >= 0 && data != null)
+            {
+                if (length > data.Length) length = data.Length;
+
+                hybirdLock.Enter( );
+
+                Array.Copy( data, sourceIndex, buffer, destIndex, length );
 
                 hybirdLock.Leave( );
             }
@@ -127,7 +245,17 @@ namespace HslCommunication.BasicFramework
         #endregion
 
         #region BCL Set Support
-        
+
+        /// <summary>
+        /// 设置byte类型的数据到缓存区
+        /// </summary>
+        /// <param name="value">byte数值</param>
+        /// <param name="index">索引位置</param>
+        public void SetValue(byte value, int index )
+        {
+            SetBytes( new byte[] { value }, index );
+        }
+ 
         /// <summary>
         /// 设置short类型的数据到缓存区
         /// </summary>
@@ -291,6 +419,16 @@ namespace HslCommunication.BasicFramework
         #endregion
 
         #region BCL Get Support
+
+        /// <summary>
+        /// 获取byte类型的数据
+        /// </summary>
+        /// <param name="index">索引位置</param>
+        /// <returns>byte数值</returns>
+        public byte GetByte( int index )
+        {
+            return GetBytes( index, 1 )[0];
+        }
 
         /// <summary>
         /// 获取short类型的数组到缓存区
@@ -466,6 +604,48 @@ namespace HslCommunication.BasicFramework
         public double GetDouble( int index )
         {
             return GetUInt64( index, 1 )[0];
+        }
+
+        #endregion
+
+        #region Customer Support
+
+        /// <summary>
+        /// 读取自定义类型的数据，需要规定解析规则
+        /// </summary>
+        /// <typeparam name="T">类型名称</typeparam>
+        /// <param name="index">起始索引</param>
+        /// <returns>自定义的数据类型</returns>
+        public T GetCustomer<T>( int index ) where T : IDataTransfer, new()
+        {
+            T Content = new T( );
+            byte[] read = GetBytes( index, Content.ReadCount );
+            Content.ParseSource( read );
+            return Content;
+        }
+
+        /// <summary>
+        /// 写入自定义类型的数据到缓存中去，需要规定生成字节的方法
+        /// </summary>
+        /// <typeparam name="T">自定义类型</typeparam>
+        /// <param name="data">实例对象</param>
+        /// <param name="index">起始地址</param>
+        public void SetCustomer<T>( T data, int index ) where T : IDataTransfer, new()
+        {
+            SetBytes( data.ToSource( ), index );
+        }
+
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        /// 获取或设置当前的数据缓存类的解析规则
+        /// </summary>
+        public IByteTransform ByteTransform
+        {
+            get => byteTransform;
+            set => byteTransform = value;
         }
 
         #endregion

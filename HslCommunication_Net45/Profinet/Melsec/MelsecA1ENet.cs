@@ -16,6 +16,72 @@ namespace HslCommunication.Profinet.Melsec
     /// <list type="number">
     /// <item>FX3U(C) PLC   测试人sandy_liao</item>
     /// </list>
+    /// 数据地址支持的格式如下：
+    /// <list type="table">
+    ///   <listheader>
+    ///     <term>地址名称</term>
+    ///     <term>地址代号</term>
+    ///     <term>示例</term>
+    ///     <term>地址进制</term>
+    ///     <term>字操作</term>
+    ///     <term>位操作</term>
+    ///     <term>备注</term>
+    ///   </listheader>
+    ///   <item>
+    ///     <term>内部继电器</term>
+    ///     <term>M</term>
+    ///     <term>M100,M200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>输入继电器</term>
+    ///     <term>X</term>
+    ///     <term>X10,X20</term>
+    ///     <term>8</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>输出继电器</term>
+    ///     <term>Y</term>
+    ///     <term>Y10,Y20</term>
+    ///     <term>8</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>步进继电器</term>
+    ///     <term>S</term>
+    ///     <term>S100,S200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>数据寄存器</term>
+    ///     <term>D</term>
+    ///     <term>D1000,D2000</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>×</term>
+    ///     <term></term>
+    ///   </item>
+    ///   <item>
+    ///     <term>文件寄存器</term>
+    ///     <term>R</term>
+    ///     <term>R100,R200</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>×</term>
+    ///     <term></term>
+    ///   </item>
+    /// </list>
     /// <note type="important">本通讯类由CKernal推送，感谢</note>
     /// </remarks>
     public class MelsecA1ENet : NetworkDeviceBase<MelsecA1EBinaryMessage, RegularByteTransform>
@@ -212,7 +278,7 @@ namespace HslCommunication.Profinet.Melsec
 
             // 默认信息----注意：高低字节交错
             // byte subtitle = analysis.Content1.DataType == 0x01 ? (byte)0x00 : (byte)0x01;
-            byte subtitle = isBit ? (byte)0x01 : (byte)0x00;
+            byte subtitle = isBit ? (byte)0x00 : (byte)0x01;
 
             byte[] _PLCCommand = new byte[12];
             _PLCCommand[ 0] = subtitle;                              // 副标题

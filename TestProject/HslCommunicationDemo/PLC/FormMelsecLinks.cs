@@ -72,6 +72,8 @@ namespace HslCommunicationDemo
                 label25.Text = "Data bits";
                 button1.Text = "Connect";
                 button2.Text = "Disconnect";
+                button3.Text = "Start Plc";
+                button4.Text = "Stop Plc";
                 label21.Text = "Address:";
                 label6.Text = "address:";
                 label7.Text = "result:";
@@ -682,11 +684,11 @@ namespace HslCommunicationDemo
             OperateResult operate = melsecSerial.StartPLC( );
             if(!operate.IsSuccess)
             {
-                MessageBox.Show( "启动失败：" + operate.Message );
+                MessageBox.Show( "Start Failed：" + operate.Message );
             }
             else
             {
-                MessageBox.Show( "启动成功" );
+                MessageBox.Show( "Start Success" );
             }
         }
 
@@ -696,11 +698,11 @@ namespace HslCommunicationDemo
             OperateResult operate = melsecSerial.StopPLC( );
             if (!operate.IsSuccess)
             {
-                MessageBox.Show( "停止失败：" + operate.Message );
+                MessageBox.Show( "Stop Failed：" + operate.Message );
             }
             else
             {
-                MessageBox.Show( "停止成功" );
+                MessageBox.Show( "Stop Success" );
             }
         }
     }

@@ -82,8 +82,7 @@ namespace HslCommunication.BasicFramework
         #endregion
 
         #region DataSize Format
-
-
+        
         /// <summary>
         /// 从一个字节大小返回带单位的描述
         /// </summary>
@@ -116,6 +115,38 @@ namespace HslCommunication.BasicFramework
             }
         }
 
+        #endregion
+
+        #region TimeSpan Format
+
+        /// <summary>
+        /// 从一个时间差返回带单位的描述
+        /// </summary>
+        /// <param name="ts">实际的时间差</param>
+        /// <returns>最终的字符串值</returns>
+        /// <example>
+        /// 比如说我们获取了一个时间差信息
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\BasicFramework\SoftBasicExample.cs" region="GetTimeSpanDescriptionExample" title="GetTimeSpanDescription示例" />
+        /// </example>
+        public static string GetTimeSpanDescription( TimeSpan ts )
+        {
+            if (ts.TotalSeconds <= 60)
+            {
+                return (int)ts.TotalSeconds + " 秒";
+            }
+            else if (ts.TotalMinutes <= 60)
+            {
+                return ts.TotalMinutes.ToString( "F1" ) + " 分钟";
+            }
+            else if (ts.TotalHours <= 24)
+            {
+                return ts.TotalHours.ToString( "F1" ) + " 小时";
+            }
+            else
+            {
+                return ts.TotalDays.ToString( "F1" ) + " 天";
+            }
+        }
 
         #endregion
 
@@ -139,15 +170,8 @@ namespace HslCommunication.BasicFramework
 
             if (array.Length == max)
             {
-                for (int i = 0; i < array.Length - data.Length; i++)
-                {
-                    array[i] = array[i + 1];
-                }
-
-                for (int i = 0; i < data.Length; i++)
-                {
-                    array[array.Length - data.Length + i] = data[i];
-                }
+                Array.Copy( array, data.Length, array, 0, array.Length - data.Length );
+                Array.Copy( data, 0, array, array.Length - data.Length, data.Length );
             }
             else
             {
@@ -313,8 +337,7 @@ namespace HslCommunication.BasicFramework
         #endregion
 
         #region Enum About
-
-
+        
         /// <summary>
         /// 获取一个枚举类型的所有枚举值，可直接应用于组合框数据 ->
         /// Gets all the enumeration values of an enumeration type that can be applied directly to the combo box data
@@ -327,6 +350,21 @@ namespace HslCommunication.BasicFramework
         public static TEnum[] GetEnumValues<TEnum>( ) where TEnum : struct
         {
             return (TEnum[])Enum.GetValues( typeof( TEnum ) );
+        }
+
+        /// <summary>
+        /// 从字符串的枚举值数据转换成真实的枚举值数据 ->
+        /// Convert enumeration value data from strings to real enumeration value data
+        /// </summary>
+        /// <typeparam name="TEnum">枚举的类型值</typeparam>
+        /// <param name="value">枚举的字符串的数据值</param>
+        /// <returns>真实的枚举值</returns>
+        /// <example>
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\BasicFramework\SoftBasicExample.cs" region="GetEnumFromStringExample" title="GetEnumFromString示例" />
+        /// </example>
+        public static TEnum GetEnumFromString<TEnum>(string value ) where TEnum : struct
+        {
+            return (TEnum)Enum.Parse( typeof( TEnum ), value );
         }
 
         #endregion
@@ -811,7 +849,7 @@ namespace HslCommunication.BasicFramework
         /// <remarks>
         /// 当你要显示本组件框架的版本号的时候，就可以用这个属性来显示
         /// </remarks>
-        public static SystemVersion FrameworkVersion { get; set; } = new SystemVersion( "5.7.1" );
+        public static SystemVersion FrameworkVersion { get; set; } = new SystemVersion( "6.0.0" );
 
 
         #endregion

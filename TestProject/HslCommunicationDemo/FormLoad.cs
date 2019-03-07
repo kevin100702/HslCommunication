@@ -282,15 +282,24 @@ namespace HslCommunicationDemo
         {
             verisonToolStripMenuItem.Text = "Version: " + HslCommunication.BasicFramework.SoftBasic.FrameworkVersion.ToString( );
 
-
-            if (System.Globalization.CultureInfo.CurrentCulture.ToString( ).StartsWith( "zh" ))
+            if (Settings1.Default.language == 1)
             {
-                Program.Language = 1;
-                Language( Program.Language );
+                if (System.Globalization.CultureInfo.CurrentCulture.ToString( ).StartsWith( "zh" ))
+                {
+                    Program.Language = 1;
+                    Language( Program.Language );
+                }
+                else
+                {
+                    HslCommunication.StringResources.SeteLanguageEnglish( );
+                    Program.Language = 2;
+                    Language( Program.Language );
+                }
             }
             else
             {
                 Program.Language = 2;
+                HslCommunication.StringResources.SeteLanguageEnglish( );
                 Language( Program.Language );
             }
         }
@@ -310,6 +319,7 @@ namespace HslCommunicationDemo
                 button29.Text = "异形 Simplify Net";
                 button16.Text = "常用简单控件";
                 Text = "HslCommunication 测试工具";
+                免责条款ToolStripMenuItem.Text = "免责条款";
             }
             else
             {
@@ -324,6 +334,7 @@ namespace HslCommunicationDemo
                 button29.Text = "Alien Simplify Net";
                 button16.Text = "Simple Control";
                 Text = "HslCommunication Test Tool";
+                免责条款ToolStripMenuItem.Text = "Disclaimer";
             }
         }
 
@@ -616,6 +627,8 @@ namespace HslCommunicationDemo
             // 简体中文
             HslCommunication.StringResources.SetLanguageChinese( );
             Program.Language = 1;
+            Settings1.Default.language = Program.Language;
+            Settings1.Default.Save( );
             Language( Program.Language );
             MessageBox.Show( "已选择中文" );
         }
@@ -625,6 +638,8 @@ namespace HslCommunicationDemo
             // English
             HslCommunication.StringResources.SeteLanguageEnglish( );
             Program.Language = 2;
+            Settings1.Default.language = Program.Language;
+            Settings1.Default.Save( );
             Language( Program.Language );
             MessageBox.Show( "Select English!" );
         }
@@ -748,6 +763,78 @@ namespace HslCommunicationDemo
             Hide( );
             System.Threading.Thread.Sleep( 200 );
             using (Robot.FormEfortPrevious form = new Robot.FormEfortPrevious( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button45_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormModbusServer form = new FormModbusServer( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button46_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormS7Server form = new FormS7Server( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button47_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormMelsec3C form = new FormMelsec3C( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button48_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormOmronHostLink form = new FormOmronHostLink( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button49_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormKeyenceBinary form = new FormKeyenceBinary( ))
+            {
+                form.ShowDialog( );
+            }
+            System.Threading.Thread.Sleep( 200 );
+            Show( );
+        }
+
+        private void button50_Click( object sender, EventArgs e )
+        {
+            Hide( );
+            System.Threading.Thread.Sleep( 200 );
+            using (FormKeyenceAscii form = new FormKeyenceAscii( ))
             {
                 form.ShowDialog( );
             }

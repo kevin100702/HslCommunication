@@ -85,6 +85,19 @@ namespace HslCommunication_Net45.Test.Documentation.Samples.BasicFramework
             #endregion
         }
 
+        public void GetTimeSpanDescriptionExample( )
+        {
+            #region GetTimeSpanDescriptionExample
+
+            string size = SoftBasic.GetTimeSpanDescription( TimeSpan.FromMinutes( 12.3d ) );
+
+            // 12.3 分钟
+            Console.WriteLine( size );
+
+
+            #endregion
+        }
+
         public void AddArrayDataExample( )
         {
             #region AddArrayDataExample
@@ -203,6 +216,22 @@ namespace HslCommunication_Net45.Test.Documentation.Samples.BasicFramework
             // Open
             // OpenOrCreate
             // Truncate
+
+            #endregion
+        }
+
+        public void GetEnumFromStringExample( )
+        {
+            #region GetEnumFromStringExample
+
+            // 从字符串生成枚举值，可以用来方便的进行数据存储，解析
+
+            System.IO.FileMode fileMode = SoftBasic.GetEnumFromString<System.IO.FileMode>( "Append" );
+
+            if(fileMode == FileMode.Append)
+            {
+                // This is true
+            }
 
             #endregion
         }
