@@ -29,6 +29,7 @@
         private void InitializeComponent( )
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button53 = new System.Windows.Forms.Button();
             this.button46 = new System.Windows.Forms.Button();
             this.button39 = new System.Windows.Forms.Button();
             this.button36 = new System.Windows.Forms.Button();
@@ -59,6 +60,7 @@
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.button52 = new System.Windows.Forms.Button();
             this.button48 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -70,6 +72,7 @@
             this.button17 = new System.Windows.Forms.Button();
             this.button16 = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.button51 = new System.Windows.Forms.Button();
             this.button44 = new System.Windows.Forms.Button();
             this.button23 = new System.Windows.Forms.Button();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
@@ -104,8 +107,11 @@
             this.button42 = new System.Windows.Forms.Button();
             this.button40 = new System.Windows.Forms.Button();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
-            this.button49 = new System.Windows.Forms.Button();
+            this.button54 = new System.Windows.Forms.Button();
             this.button50 = new System.Windows.Forms.Button();
+            this.button49 = new System.Windows.Forms.Button();
+            this.论坛toolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -124,6 +130,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button53);
             this.groupBox1.Controls.Add(this.button46);
             this.groupBox1.Controls.Add(this.button39);
             this.groupBox1.Controls.Add(this.button36);
@@ -141,6 +148,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Siemens PLC(西门子 PLC)";
             // 
+            // button53
+            // 
+            this.button53.Location = new System.Drawing.Point(18, 104);
+            this.button53.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button53.Name = "button53";
+            this.button53.Size = new System.Drawing.Size(150, 32);
+            this.button53.TabIndex = 8;
+            this.button53.Text = "s7-200";
+            this.button53.UseVisualStyleBackColor = true;
+            this.button53.Click += new System.EventHandler(this.Button53_Click);
+            // 
             // button46
             // 
             this.button46.Location = new System.Drawing.Point(18, 264);
@@ -154,7 +172,7 @@
             // 
             // button39
             // 
-            this.button39.Location = new System.Drawing.Point(98, 104);
+            this.button39.Location = new System.Drawing.Point(98, 64);
             this.button39.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button39.Name = "button39";
             this.button39.Size = new System.Drawing.Size(70, 32);
@@ -192,13 +210,13 @@
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(150, 32);
             this.button5.TabIndex = 3;
-            this.button5.Text = "200Smart";
+            this.button5.Text = "s7-200Smart";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(18, 104);
+            this.button3.Location = new System.Drawing.Point(18, 64);
             this.button3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(70, 32);
@@ -209,10 +227,10 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(18, 64);
+            this.button2.Location = new System.Drawing.Point(98, 24);
             this.button2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(150, 32);
+            this.button2.Size = new System.Drawing.Size(70, 32);
             this.button2.TabIndex = 1;
             this.button2.Text = "s7-1500";
             this.button2.UseVisualStyleBackColor = true;
@@ -223,7 +241,7 @@
             this.button1.Location = new System.Drawing.Point(18, 24);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 32);
+            this.button1.Size = new System.Drawing.Size(70, 32);
             this.button1.TabIndex = 0;
             this.button1.Text = "s7-1200";
             this.button1.UseVisualStyleBackColor = true;
@@ -480,6 +498,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.button52);
             this.groupBox5.Controls.Add(this.button48);
             this.groupBox5.Controls.Add(this.button11);
             this.groupBox5.Location = new System.Drawing.Point(586, 29);
@@ -490,6 +509,17 @@
             this.groupBox5.TabIndex = 11;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Omron PLC(欧姆龙 PLC)";
+            // 
+            // button52
+            // 
+            this.button52.Location = new System.Drawing.Point(19, 104);
+            this.button52.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button52.Name = "button52";
+            this.button52.Size = new System.Drawing.Size(150, 32);
+            this.button52.TabIndex = 2;
+            this.button52.Text = "Fins Udp";
+            this.button52.UseVisualStyleBackColor = true;
+            this.button52.Click += new System.EventHandler(this.button52_Click);
             // 
             // button48
             // 
@@ -608,16 +638,28 @@
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.button51);
             this.groupBox7.Controls.Add(this.button44);
             this.groupBox7.Controls.Add(this.button23);
             this.groupBox7.Location = new System.Drawing.Point(395, 356);
             this.groupBox7.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox7.Size = new System.Drawing.Size(185, 156);
+            this.groupBox7.Size = new System.Drawing.Size(185, 315);
             this.groupBox7.TabIndex = 14;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Robot(机器人)";
+            // 
+            // button51
+            // 
+            this.button51.Location = new System.Drawing.Point(19, 103);
+            this.button51.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button51.Name = "button51";
+            this.button51.Size = new System.Drawing.Size(150, 32);
+            this.button51.TabIndex = 2;
+            this.button51.Text = "KUKA";
+            this.button51.UseVisualStyleBackColor = true;
+            this.button51.Click += new System.EventHandler(this.button51_Click);
             // 
             // button44
             // 
@@ -789,7 +831,7 @@
             this.groupBox11.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox11.Name = "groupBox11";
             this.groupBox11.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox11.Size = new System.Drawing.Size(185, 315);
+            this.groupBox11.Size = new System.Drawing.Size(185, 156);
             this.groupBox11.TabIndex = 22;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Instrument(仪器仪表)";
@@ -812,6 +854,7 @@
             this.aboutToolStripMenuItem,
             this.简体中文ToolStripMenuItem,
             this.englishToolStripMenuItem,
+            this.论坛toolStripMenuItem,
             this.日志ToolStripMenuItem,
             this.verisonToolStripMenuItem,
             this.免责条款ToolStripMenuItem});
@@ -915,7 +958,7 @@
             this.groupBox12.Controls.Add(this.button43);
             this.groupBox12.Controls.Add(this.button42);
             this.groupBox12.Controls.Add(this.button40);
-            this.groupBox12.Location = new System.Drawing.Point(395, 520);
+            this.groupBox12.Location = new System.Drawing.Point(586, 520);
             this.groupBox12.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox12.Name = "groupBox12";
             this.groupBox12.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -959,6 +1002,7 @@
             // 
             // groupBox13
             // 
+            this.groupBox13.Controls.Add(this.button54);
             this.groupBox13.Controls.Add(this.button50);
             this.groupBox13.Controls.Add(this.button49);
             this.groupBox13.Location = new System.Drawing.Point(777, 208);
@@ -970,16 +1014,16 @@
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "Keyence(基恩士 PLC)";
             // 
-            // button49
+            // button54
             // 
-            this.button49.Location = new System.Drawing.Point(18, 24);
-            this.button49.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.button49.Name = "button49";
-            this.button49.Size = new System.Drawing.Size(150, 32);
-            this.button49.TabIndex = 2;
-            this.button49.Text = "MC-3E (Binary)";
-            this.button49.UseVisualStyleBackColor = true;
-            this.button49.Click += new System.EventHandler(this.button49_Click);
+            this.button54.Location = new System.Drawing.Point(18, 100);
+            this.button54.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button54.Name = "button54";
+            this.button54.Size = new System.Drawing.Size(150, 32);
+            this.button54.TabIndex = 4;
+            this.button54.Text = "Nano(ASCII)";
+            this.button54.UseVisualStyleBackColor = true;
+            this.button54.Click += new System.EventHandler(this.button54_Click);
             // 
             // button50
             // 
@@ -992,12 +1036,42 @@
             this.button50.UseVisualStyleBackColor = true;
             this.button50.Click += new System.EventHandler(this.button50_Click);
             // 
+            // button49
+            // 
+            this.button49.Location = new System.Drawing.Point(18, 24);
+            this.button49.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.button49.Name = "button49";
+            this.button49.Size = new System.Drawing.Size(150, 32);
+            this.button49.TabIndex = 2;
+            this.button49.Text = "MC-3E (Binary)";
+            this.button49.UseVisualStyleBackColor = true;
+            this.button49.Click += new System.EventHandler(this.button49_Click);
+            // 
+            // 论坛toolStripMenuItem
+            // 
+            this.论坛toolStripMenuItem.Name = "论坛toolStripMenuItem";
+            this.论坛toolStripMenuItem.Size = new System.Drawing.Size(43, 21);
+            this.论坛toolStripMenuItem.Text = "BBS";
+            this.论坛toolStripMenuItem.Click += new System.EventHandler(this.论坛toolStripMenuItem_Click);
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.Color.LightSeaGreen;
+            this.label2.ForeColor = System.Drawing.Color.Yellow;
+            this.label2.Location = new System.Drawing.Point(486, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(494, 25);
+            this.label2.TabIndex = 29;
+            this.label2.Text = "如果你有什么问题，可以先去论坛看看";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // FormLoad
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.AliceBlue;
             this.ClientSize = new System.Drawing.Size(980, 684);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox13);
             this.Controls.Add(this.groupBox12);
             this.Controls.Add(this.groupBox11);
@@ -1121,6 +1195,12 @@
         private System.Windows.Forms.GroupBox groupBox13;
         private System.Windows.Forms.Button button50;
         private System.Windows.Forms.Button button49;
+        private System.Windows.Forms.Button button51;
+        private System.Windows.Forms.Button button52;
+        private System.Windows.Forms.Button button53;
+        private System.Windows.Forms.Button button54;
+        private System.Windows.Forms.ToolStripMenuItem 论坛toolStripMenuItem;
+        private System.Windows.Forms.Label label2;
     }
 }
 

@@ -200,6 +200,8 @@
     <Compile Include="Core\Net\NetworkBase\NetworkDoubleBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkFileServerBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkServerBase.cs" />
+    <Compile Include="Core\Net\NetworkBase\NetworkUdpBase.cs" />
+    <Compile Include="Core\Net\NetworkBase\NetworkUdpDeviceBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkXBase.cs" />
     <Compile Include="Core\Net\StateOne\AlienSession.cs" />
     <Compile Include="Core\Net\StateOne\AppSession.cs" />
@@ -276,8 +278,11 @@
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyHelper.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyNet.cs" />
+    <Compile Include="Profinet\Keyence\KeyenceDataType.cs" />
     <Compile Include="Profinet\Keyence\KeyenceMcAsciiNet.cs" />
     <Compile Include="Profinet\Keyence\KeyenceMcNet.cs" />
+    <Compile Include="Profinet\Keyence\KeyenceNanoByteTransform.cs" />
+    <Compile Include="Profinet\Keyence\KeyenceNanoSerial.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1EDataType.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1ENet.cs" />
     <Compile Include="Profinet\Melsec\MelsecA3CNet1.cs" />
@@ -291,6 +296,7 @@
     <Compile Include="Profinet\Omron\OmronFinsDataType.cs" />
     <Compile Include="Profinet\Omron\OmronFinsNet.cs" />
     <Compile Include="Profinet\Omron\OmronFinsNetHelper.cs" />
+    <Compile Include="Profinet\Omron\OmronFinsUdp.cs" />
     <Compile Include="Profinet\Omron\OmronHostLink.cs" />
     <Compile Include="Profinet\Panasonic\PanasonicMewtocol.cs" />
     <Compile Include="Profinet\Siemens\SiemensFetchWriteNet.cs" />
@@ -308,6 +314,8 @@
     <Compile Include="Robot\EFORT\EfortData.cs" />
     <Compile Include="Robot\EFORT\ER7BC10.cs" />
     <Compile Include="Robot\EFORT\ER7BC10Previous.cs" />
+    <Compile Include="Robot\KUKA\KukaAvarProxyNet.cs" />
+    <Compile Include="Robot\YASKAWA\YRC1000TcpNet.cs" />
     <Compile Include="Serial\CRCSupport.cs" />
     <Compile Include="Serial\FP1_C72.cs" />
     <Compile Include="Serial\SerialBase.cs" />
@@ -419,8 +427,6 @@
     <None Include="imgaes\abstr1.png" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Robot\KUKA\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

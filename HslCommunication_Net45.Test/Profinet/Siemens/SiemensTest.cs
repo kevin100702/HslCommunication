@@ -119,7 +119,7 @@ namespace HslCommunication_Net45.Test.Profinet.Siemens
 
             // string类型
             Assert.IsTrue( plc.Write( address, "123123" ).IsSuccess );
-            Assert.IsTrue( plc.ReadString( address, 6 ).Content == "123123" );
+            Assert.IsTrue( plc.ReadString( address ).Content == "123123" );
 
             // byte类型
             byte[] byteTmp = new byte[] { 0x4F, 0x12, 0x72, 0xA7, 0x54, 0xB8 };

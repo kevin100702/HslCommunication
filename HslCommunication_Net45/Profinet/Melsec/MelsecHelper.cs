@@ -331,7 +331,7 @@ namespace HslCommunication.Profinet.Melsec
                             else if (address[1] == 'D' || address[1] == 'd')
                             {
                                 result.Content1 = MelsecMcDataType.Keyence_SD;
-                                result.Content2 = Convert.ToInt32( address.Substring( 2 ), MelsecMcDataType.Keyence_SD.FromBase );
+                                result.Content2 = Convert.ToUInt16( address.Substring( 2 ), MelsecMcDataType.Keyence_SD.FromBase );
                                 break;
                             }
                             else
@@ -343,7 +343,7 @@ namespace HslCommunication.Profinet.Melsec
                     case 'd':
                         {
                             result.Content1 = MelsecMcDataType.Keyence_D;
-                            result.Content2 = Convert.ToUInt16( address.Substring( 1 ), MelsecMcDataType.Keyence_D.FromBase );
+                            result.Content2 = Convert.ToInt32( address.Substring( 1 ), MelsecMcDataType.Keyence_D.FromBase );
                             break;
                         }
                     case 'R':
@@ -635,7 +635,7 @@ namespace HslCommunication.Profinet.Melsec
             command[17] = MelsecHelper.BuildBytesFromData( (ushort)(value.Length) )[1];
             command[18] = MelsecHelper.BuildBytesFromData( (ushort)(value.Length) )[2];
             command[19] = MelsecHelper.BuildBytesFromData( (ushort)(value.Length) )[3];
-            value.CopyTo( command, 20 );
+            buffer.CopyTo( command, 20 );
 
             return OperateResult.CreateSuccessResult( command );
         }

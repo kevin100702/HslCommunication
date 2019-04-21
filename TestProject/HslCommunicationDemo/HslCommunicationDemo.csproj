@@ -77,6 +77,7 @@
     <Compile Include="Control\FormPipe.Designer.cs">
       <DependentUpon>FormPipe.cs</DependentUpon>
     </Compile>
+    <Compile Include="DemoUtils.cs" />
     <Compile Include="FormAuthor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -190,6 +191,18 @@
     </Compile>
     <Compile Include="PLC\FormKeyenceAscii.Designer.cs">
       <DependentUpon>FormKeyenceAscii.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceNanoSerial.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormKeyenceNanoSerial.Designer.cs">
+      <DependentUpon>FormKeyenceNanoSerial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PLC\FormOmronUdp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PLC\FormOmronUdp.Designer.cs">
+      <DependentUpon>FormOmronUdp.cs</DependentUpon>
     </Compile>
     <Compile Include="PLC\FormOmronHostLink.cs">
       <SubType>Form</SubType>
@@ -373,10 +386,22 @@
     <Compile Include="Robot\FormEfort.Designer.cs">
       <DependentUpon>FormEfort.cs</DependentUpon>
     </Compile>
+    <Compile Include="Robot\FormKuka.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Robot\FormKuka.Designer.cs">
+      <DependentUpon>FormKuka.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings1.settings</DependentUpon>
+    </Compile>
+    <Compile Include="DemoControl\UserControlCurve.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DemoControl\UserControlCurve.Designer.cs">
+      <DependentUpon>UserControlCurve.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Algorithms\FormConnectPool.resx">
       <DependentUpon>FormConnectPool.cs</DependentUpon>
@@ -389,6 +414,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Control\FormPipe.resx">
       <DependentUpon>FormPipe.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DemoControl\UserControlCurve.resx">
+      <DependentUpon>UserControlCurve.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormAuthor.resx">
       <DependentUpon>FormAuthor.cs</DependentUpon>
@@ -446,6 +474,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PLC\FormKeyenceAscii.resx">
       <DependentUpon>FormKeyenceAscii.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormKeyenceNanoSerial.resx">
+      <DependentUpon>FormKeyenceNanoSerial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PLC\FormOmronUdp.resx">
+      <DependentUpon>FormOmronUdp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PLC\FormOmronHostLink.resx">
       <DependentUpon>FormOmronHostLink.cs</DependentUpon>
@@ -546,6 +580,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Robot\FormEfort.resx">
       <DependentUpon>FormEfort.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Robot\FormKuka.resx">
+      <DependentUpon>FormKuka.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">

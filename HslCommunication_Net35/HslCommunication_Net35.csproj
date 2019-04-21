@@ -321,6 +321,12 @@
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkServerBase.cs">
       <Link>Core\Net\NetworkBase\NetworkServerBase.cs</Link>
     </Compile>
+    <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkUdpBase.cs">
+      <Link>Core\Net\NetworkBase\NetworkUdpBase.cs</Link>
+    </Compile>
+    <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkUdpDeviceBase.cs">
+      <Link>Core\Net\NetworkUdpDeviceBase.cs</Link>
+    </Compile>
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkXBase.cs">
       <Link>Core\Net\NetworkBase\NetworkXBase.cs</Link>
     </Compile>
@@ -529,11 +535,20 @@
     <Compile Include="..\HslCommunication_Net45\Profinet\AllenBradley\AllenBradleyNet.cs">
       <Link>Profinet\AllenBradley\AllenBradleyNet.cs</Link>
     </Compile>
+    <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceDataType.cs">
+      <Link>Profinet\Keyence\KeyenceDataType.cs</Link>
+    </Compile>
     <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceMcAsciiNet.cs">
       <Link>Profinet\Keyence\KeyenceMcAsciiNet.cs</Link>
     </Compile>
     <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceMcNet.cs">
       <Link>Profinet\Keyence\KeyenceMcNet.cs</Link>
+    </Compile>
+    <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceNanoByteTransform.cs">
+      <Link>Profinet\Keyence\KeyenceNanoByteTransform.cs</Link>
+    </Compile>
+    <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceNanoSerial.cs">
+      <Link>Profinet\Keyence\KeyenceNanoSerial.cs</Link>
     </Compile>
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecA1EDataType.cs">
       <Link>Profinet\Melsec\MelsecA1EDataType.cs</Link>
@@ -574,6 +589,9 @@
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsNetHelper.cs">
       <Link>Profinet\Omron\OmronFinsNetHelper.cs</Link>
     </Compile>
+    <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsUdp.cs">
+      <Link>Profinet\Omron\OmronFinsUdp.cs</Link>
+    </Compile>
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronHostLink.cs">
       <Link>Profinet\Omron\OmronHostLink.cs</Link>
     </Compile>
@@ -603,6 +621,12 @@
     </Compile>
     <Compile Include="..\HslCommunication_Net45\Robot\EFORT\ER7BC10Previous.cs">
       <Link>Robot\EFORT\ER7BC10Previous.cs</Link>
+    </Compile>
+    <Compile Include="..\HslCommunication_Net45\Robot\KUKA\KukaAvarProxyNet.cs">
+      <Link>Robot\KUKA\KukaAvarProxyNet.cs</Link>
+    </Compile>
+    <Compile Include="..\HslCommunication_Net45\Robot\YASKAWA\YRC1000TcpNet.cs">
+      <Link>Robot\YASKAWA\YRC1000TcpNet.cs</Link>
     </Compile>
     <Compile Include="..\HslCommunication_Net45\Serial\CRCSupport.cs">
       <Link>Serial\CRCSupport.cs</Link>
@@ -826,8 +850,6 @@
       <Link>Doc.txt</Link>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Robot\KUKA\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

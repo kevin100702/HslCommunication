@@ -16,6 +16,10 @@ public enum SiemensPLCS {
     S300,
 
     /**
+     * 400系列
+     */
+    S400,
+    /**
      * 1500系列
      */
     S1500,
@@ -24,4 +28,8 @@ public enum SiemensPLCS {
      * S200Smart系列
      */
     S200Smart,
+    /**
+     * 200系列
+     */
+    S200,
 }

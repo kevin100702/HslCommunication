@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HslCommunication.BasicFramework;
 
 namespace HslCommunication.Profinet.Omron
 {
@@ -180,10 +181,9 @@ namespace HslCommunication.Profinet.Omron
         /// <returns>带有是否成功的结果对象</returns>
         public static OperateResult<byte[]> ResponseValidAnalysis( byte[] response, bool isRead )
         {
-            // 数据有效性分析
             if (response.Length >= 16)
             {
-                // 提取错误码
+                // 提取错误码 -> Extracting error Codes
                 byte[] buffer = new byte[4];
                 buffer[0] = response[15];
                 buffer[1] = response[14];
@@ -193,30 +193,71 @@ namespace HslCommunication.Profinet.Omron
                 int err = BitConverter.ToInt32( buffer, 0 );
                 if (err > 0) return new OperateResult<byte[]>( err, GetStatusDescription( err ) );
 
-                if (response.Length >= 30)
+                byte[] result = new byte[response.Length - 16];
+                Array.Copy( response, 16, result, 0, result.Length );
+                return UdpResponseValidAnalysis( result, isRead );
+                //if (response.Length >= 30)
+                //{
+                //    err = response[28] * 256 + response[29];
+                //    // if (err > 0) return new OperateResult<byte[]>( err, StringResources.Language.OmronReceiveDataError );
+
+                //    if (!isRead)
+                //    {
+                //        OperateResult<byte[]> success = OperateResult.CreateSuccessResult( new byte[0] );
+                //        success.ErrorCode = err;
+                //        success.Message = GetStatusDescription( err );
+                //        return success;
+                //    }
+                //    else
+                //    {
+                //        // 读取操作 -> read operate
+                //        byte[] content = new byte[response.Length - 30];
+                //        if (content.Length > 0) Array.Copy( response, 30, content, 0, content.Length );
+
+                //        OperateResult<byte[]> success = OperateResult.CreateSuccessResult( content );
+                //        if (content.Length == 0) success.IsSuccess = false;
+                //        success.ErrorCode = err;
+                //        success.Message = GetStatusDescription( err );
+                //        return success;
+                //    }
+                //}
+            }
+
+            return new OperateResult<byte[]>( StringResources.Language.OmronReceiveDataError );
+        }
+
+
+        /// <summary>
+        /// 验证欧姆龙的Fins-Udp返回的数据是否正确的数据，如果正确的话，并返回所有的数据内容
+        /// </summary>
+        /// <param name="response">来自欧姆龙返回的数据内容</param>
+        /// <param name="isRead">是否读取</param>
+        /// <returns>带有是否成功的结果对象</returns>
+        public static OperateResult<byte[]> UdpResponseValidAnalysis( byte[] response, bool isRead )
+        {
+            if (response.Length >= 14)
+            {
+                int err = response[12] * 256 + response[13];
+                // if (err > 0) return new OperateResult<byte[]>( err, StringResources.Language.OmronReceiveDataError );
+
+                if (!isRead)
                 {
-                    err = response[28] * 256 + response[29];
-                    // 暂时忽略所有的报警信息
-                    // if (err > 0) return new OperateResult<byte[]>( err, StringResources.Language.OmronReceiveDataError );
+                    OperateResult<byte[]> success = OperateResult.CreateSuccessResult( new byte[0] );
+                    success.ErrorCode = err;
+                    success.Message = GetStatusDescription( err ) + " Received:" + SoftBasic.ByteToHexString( response, ' ' );
+                    return success;
+                }
+                else
+                {
+                    // 读取操作 -> read operate
+                    byte[] content = new byte[response.Length - 14];
+                    if (content.Length > 0) Array.Copy( response, 14, content, 0, content.Length );
 
-                    if (!isRead)
-                    {
-                        OperateResult<byte[]> success = OperateResult.CreateSuccessResult( new byte[0] );
-                        success.ErrorCode = err;
-                        success.Message = GetStatusDescription( err );
-                        return success;
-                    }
-                    else
-                    {
-                        // 读取操作
-                        byte[] content = new byte[response.Length - 30];
-                        if (content.Length > 0) Array.Copy( response, 30, content, 0, content.Length );
-
-                        OperateResult<byte[]> success = OperateResult.CreateSuccessResult( content );
-                        success.ErrorCode = err;
-                        success.Message = GetStatusDescription( err );
-                        return success;
-                    }
+                    OperateResult<byte[]> success = OperateResult.CreateSuccessResult( content );
+                    if (content.Length == 0) success.IsSuccess = false;
+                    success.ErrorCode = err;
+                    success.Message = GetStatusDescription( err ) + " Received:" + SoftBasic.ByteToHexString( response, ' ' );
+                    return success;
                 }
             }
 

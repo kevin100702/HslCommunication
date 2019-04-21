@@ -88,8 +88,8 @@ namespace HslCommunication.Profinet.Omron
         /// </summary>
         public OmronFinsNet( )
         {
-            WordLength = 1;
-            ByteTransform.DataFormat = DataFormat.CDAB;
+            WordLength                  = 1;
+            ByteTransform.DataFormat    = DataFormat.CDAB;
         }
 
         /// <summary>
@@ -99,10 +99,27 @@ namespace HslCommunication.Profinet.Omron
         /// <param name="port">PLC的端口</param>
         public OmronFinsNet( string ipAddress, int port )
         {
-            WordLength = 1;
-            IpAddress = ipAddress;
-            Port = port;
-            ByteTransform.DataFormat = DataFormat.CDAB;
+            WordLength                  = 1;
+            IpAddress                   = ipAddress;
+            Port                        = port;
+            ByteTransform.DataFormat    = DataFormat.CDAB;
+        }
+
+        #endregion
+        
+        #region IpAddress Override
+
+        /// <summary>
+        /// 设备的Ip地址信息
+        /// </summary>
+        public override string IpAddress
+        {
+            get => base.IpAddress;
+            set
+            {
+                DA1 = Convert.ToByte( value.Substring( value.LastIndexOf( "." ) + 1 ) );
+                base.IpAddress = value;
+            }
         }
 
         #endregion
@@ -127,10 +144,9 @@ namespace HslCommunication.Profinet.Omron
         /// PLC的网络号地址，默认0x00
         /// </summary>
         public byte DNA { get; set; } = 0x00;
-
-
+        
         /// <summary>
-        /// PLC的节点地址，假如你的PLC的Ip地址为192.168.0.10，那么这个值就是10
+        /// PLC的节点地址，这个值在配置了ip地址之后是默认赋值的，默认为Ip地址的最后一位
         /// </summary>
         /// <remarks>
         /// <note type="important">假如你的PLC的Ip地址为192.168.0.10，那么这个值就是10</note>
@@ -149,8 +165,7 @@ namespace HslCommunication.Profinet.Omron
         /// 上位机的网络号地址
         /// </summary>
         public byte SNA { get; set; } = 0x00;
-
-
+        
         private byte computerSA1 = 0x0B;
 
         /// <summary>
@@ -211,9 +226,7 @@ namespace HslCommunication.Profinet.Omron
 
             return buffer;
         }
-
-
-
+        
         /// <summary>
         /// 根据类型地址长度确认需要读取的指令头
         /// </summary>
@@ -228,9 +241,7 @@ namespace HslCommunication.Profinet.Omron
 
             return OperateResult.CreateSuccessResult( PackCommand( command.Content ) );
         }
-
-
-
+        
         /// <summary>
         /// 根据类型地址以及需要写入的数据来生成指令头
         /// </summary>
@@ -245,8 +256,7 @@ namespace HslCommunication.Profinet.Omron
             
             return OperateResult.CreateSuccessResult( PackCommand( command.Content ) );
         }
-
-
+        
         #endregion
 
         #region Double Mode Override
@@ -259,21 +269,21 @@ namespace HslCommunication.Profinet.Omron
         protected override OperateResult InitializationOnConnect( Socket socket )
         {
             // 握手信号
-            OperateResult<byte[], byte[]> read = ReadFromCoreServerBase( socket, handSingle );
+            OperateResult<byte[]> read = ReadFromCoreServer( socket, handSingle );
             if (!read.IsSuccess) return read;
             
             // 检查返回的状态
             byte[] buffer = new byte[4];
-            buffer[0] = read.Content2[7];
-            buffer[1] = read.Content2[6];
-            buffer[2] = read.Content2[5];
-            buffer[3] = read.Content2[4];
+            buffer[0] = read.Content[15];
+            buffer[1] = read.Content[14];
+            buffer[2] = read.Content[13];
+            buffer[3] = read.Content[12];
 
             int status = BitConverter.ToInt32( buffer, 0 );
             if(status != 0) return new OperateResult( status, OmronFinsNetHelper.GetStatusDescription( status ) );
 
             // 提取PLC的节点地址
-            if (read.Content2.Length >= 16) DA1 = read.Content2[15];
+            if (read.Content.Length >= 24) DA1 = read.Content[23];
 
             return OperateResult.CreateSuccessResult( ) ;
         }

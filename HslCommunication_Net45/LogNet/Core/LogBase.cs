@@ -309,8 +309,6 @@ namespace HslCommunication.LogNet
 
         #region File Write
 
-
-
         private void WriteToFile( HslMessageDegree degree, string keyWord, string text )
         {
             // 过滤事件
@@ -401,12 +399,12 @@ namespace HslCommunication.LogNet
                 }
                 catch (Exception ex)
                 {
-                    AddItemToCache(current);
-                    AddItemToCache(new HslMessageItem()
+                    AddItemToCache( current );
+                    AddItemToCache( new HslMessageItem( )
                     {
                         Degree = HslMessageDegree.FATAL,
                         Text = LogNetManagment.GetSaveStringFromException("LogNetSelf", ex),
-                    });
+                    } );
                 }
                 finally
                 {
@@ -414,10 +412,8 @@ namespace HslCommunication.LogNet
                 }
             }
 
-
             // 释放锁
             m_fileSaveLock.Leave();
-
             Interlocked.Exchange(ref m_SaveStatus, 0);
 
             // 再次检测锁是否释放完成
@@ -528,11 +524,10 @@ namespace HslCommunication.LogNet
         {
             return new HslMessageItem()
             {
-                KeyWord = keyWord,
-                Degree = degree,
-                Text = text,
-                ThreadId = Thread.CurrentThread.ManagedThreadId,
-                Time = DateTime.Now,
+                KeyWord      = keyWord,
+                Degree       = degree,
+                Text         = text,
+                ThreadId     = Thread.CurrentThread.ManagedThreadId,
             };
         }
 

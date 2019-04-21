@@ -18,6 +18,7 @@ namespace HslCommunication.Language
          ************************************************************************************/
 
         public override string ConnectedFailed => "Connected Failed: ";
+        public override string ConnectedSuccess => "Connect Success !";
         public override string UnknownError => "Unknown Error";
         public override string ErrorCode => "Error Code: ";
         public override string TextDescription => "Description: ";
@@ -30,6 +31,7 @@ namespace HslCommunication.Language
         public override string SuccessText => "Success";
         public override string TwoParametersLengthIsNotSame => "Two Parameter Length is not same";
         public override string NotSupportedDataType => "Unsupported DataType, input again";
+        public override string NotSupportedFunction => "The current feature logic does not support";
         public override string DataLengthIsNotEnough => "Receive length is not enough，Should:{0},Actual:{1}";
         public override string ReceiveDataTimeout => "Receive timeout: ";
         public override string ReceiveDataLengthTooShort => "Receive length is too short: ";

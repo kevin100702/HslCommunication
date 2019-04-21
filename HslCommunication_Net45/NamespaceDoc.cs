@@ -639,6 +639,56 @@ namespace HslCommunication
     ///             <item>VIP群将免费使用全新的控件库，谢谢支持。地址：https://github.com/dathlin/HslControlsDemo </item>
     ///         </list>
     ///     </revision>
+    ///     <revision date="2019-3-10" version="6.0.1" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复代码注释上的一些bug，三菱的注释修复。</item>
+    ///             <item>调整三菱和基恩士D区数据和W区数据的地址范围，原来只支持到65535。</item>
+    ///             <item>SoftIncrementCount: 修复不持久化的序号自增类的数据复原的bug，并添加totring方法。</item>
+    ///             <item>IRobot接口更改。针对埃夫特机器人进行重新实现。</item>
+    ///             <item>RedisClient: 修复redis类在带有密码的情况下锁死的bug。</item>
+    ///             <item>初步添加Kuka机器人的通讯类，等待测试。</item>
+    ///             <item>西门子的s7协议读写字符串重新实现，根据西门子的底层存储规则来操作。</item>
+    ///             <item>Demo的绝大多的界面进行重构。更友好的支持英文版的显示风格。</item>
+    ///             <item>如果有公司使用了本库并愿意公开logo的，将在官网及git上进行统一显示，有意愿的联系作者。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-3-21" version="6.0.2" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复西门子s7协议读写200smart字符串的bug。</item>
+    ///             <item>重构优化NetworkBase及NetwordDoubleBase网络类的代码。</item>
+    ///             <item>新增欧姆龙的FinsUdp的实现，DA1【PLC节点号】在配置Ip地址的时候自动赋值，不需要额外配置。</item>
+    ///             <item>FinsTcp类的DA1【PLC节点号】在配置Ip地址的时候自动赋值，不需要额外配置。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-3-28" version="6.0.3" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>NetPushServer推送服务器修复某些情况下的推送卡死的bug。</item>
+    ///             <item>SoftBuffer内存数据类修复Double转换时出现的错误bug。</item>
+    ///             <item>修复Kuka机器人读写数据错误的bug，已通过测试。</item>
+    ///             <item>修复三菱的MelsecMcAsciiNet类写入bool值及数组会导致异常的bug，已通过单元测试。</item>
+    ///             <item>SoftBasic新增从字符串计算MD5码的方法。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-4-4" version="6.0.4" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复java的NetPushClient掉线重复连接的bug。</item>
+    ///             <item>发布java的全新测试Demo。</item>
+    ///             <item>Kuka机器人Demo修改帮助链接。</item>
+    ///             <item>西门子新增s200的以太网模块连接对象。</item>
+    ///             <item>修复文件引擎在上传文件时意外失败，服务器仍然识别为成功的bug。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-4-4" version="6.1.0" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复日志存储自身异常时，时间没有初始化的bug。</item>
+    ///             <item>NetworkBase: 新增UseSynchronousNet属性，默认为true，通过同步的网络进行读写数据，异步手动设置为false。</item>
+    ///             <item>修复西门子的读写字符串的bug。</item>
+    ///             <item>添加KeyenceNanoSerial以支持基恩士Nano系列串口通信。</item>
+    ///             <item>其他的代码优化。</item>
+    ///             <item>发布一个基于xamarin的安卓测试demo。</item>
+    ///             <item>发布官方论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
     /// </revisionHistory>
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute( )]
     public class NamespaceDoc
@@ -653,7 +703,7 @@ namespace HslCommunication
     // 3. python新增对串口的支持并测试。
     // 4. python新增对ab plc的支持。
     // 5. .net端对安川机器人的支持，已经有协议文档。
-    // 6. .net端对库卡机器人的支持，http://blog.davidrobot.com/2014/09/kukavarproxy_index.html?tdsourcetag=s_pctim_aiomsg
+    // 6. .net端对库卡机器人的支持，http://blog.davidrobot.com/2014/09/kukavarproxy_index.html?tdsourcetag=s_pctim_aiomsg   ===== 已实现，等待测试。
     // 7. .net端对三菱Qna兼容3C帧协议的支持。                                         ===================== 已实现，通过基本的测试
     // 8. .net端对欧姆龙的Fins串口协议的支持                                           ==================== 已实现，正在最后的测试
     // 9. .net端对基恩士PLC的串口支持 https://china.keyence.com/support/user/plc/sample-program/index.jsp            ============== 已实现，基本测试通过
@@ -664,4 +714,9 @@ namespace HslCommunication
     // 3. 工业网关的深入集成
     // 4. HslCommunication官网集成项目发布接收及案例展示平台
     // 5. 研究PyQt的界面开发和实现
+
+
+
+    // bugs
+    // 文件引擎，上传文件的时候，如果客户端上传到一半，直接关闭客户端，服务器端会认为是成功的
 }

@@ -8,8 +8,9 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using HslCommunication.Core.IMessage;
+using HslCommunication.BasicFramework;
 
-#if (NET45 || NETSTANDARD2_0)
+#if (NET451 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
 
@@ -77,6 +78,11 @@ namespace HslCommunication.Core.Net
         /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkBase.cs" region="TokenServerExample" title="Server示例" />
         /// </example>
         public Guid Token { get; set; }
+
+        /// <summary>
+        /// 是否使用同步的网络通讯
+        /// </summary>
+        public bool UseSynchronousNet { get; set; } = true;
 
         #endregion
 
@@ -155,6 +161,20 @@ namespace HslCommunication.Core.Net
             //}
 
             //#if NET35
+            if (UseSynchronousNet)
+            {
+                try
+                {
+                    byte[] data = NetSupport.ReadBytesFromSocket( socket, length );
+                    return OperateResult.CreateSuccessResult( data );
+                }
+                catch(Exception ex)
+                {
+                    socket?.Close( );
+                    return new OperateResult<byte[]>( ex.Message );
+                }
+            }
+
 
             OperateResult<byte[]> result = new OperateResult<byte[]>( );
             ManualResetEvent receiveDone = null;
@@ -287,19 +307,17 @@ namespace HslCommunication.Core.Net
         #endregion
 
         #region Receive Message
-        
-        /// <summary>
-        /// 接收一条完整的数据，使用异步接收完成，包含了指令头信息
-        /// </summary>
-        /// <param name="socket">已经打开的网络套接字</param>
-        /// <param name="timeOut">超时时间</param>
-        /// <param name="netMsg">消息规则</param>
-        /// <returns>数据的接收结果对象</returns>
-        protected OperateResult<TNetMessage> ReceiveMessage<TNetMessage>( Socket socket, int timeOut, TNetMessage netMsg ) where TNetMessage : INetMessage
-        {
-            OperateResult<TNetMessage> result = new OperateResult<TNetMessage>( );
 
-            // 超时接收的代码验证
+        /// <summary>
+        /// 接收一条完整的 <seealso cref="INetMessage"/> 数据内容 ->
+        /// Receive a complete <seealso cref="INetMessage"/> data content
+        /// </summary>
+        /// <param name="socket">网络的套接字</param>
+        /// <param name="timeOut">超时时间</param>
+        /// <param name="netMessage">消息的格式定义</param>
+        /// <returns>带有是否成功的byte数组对象</returns>
+        protected OperateResult<byte[]> ReceiveByMessage( Socket socket, int timeOut, INetMessage netMessage )
+        {
             HslTimeOut hslTimeOut = new HslTimeOut( )
             {
                 DelayTime = timeOut,
@@ -308,53 +326,33 @@ namespace HslCommunication.Core.Net
             if (timeOut > 0) ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), hslTimeOut );
 
             // 接收指令头
-            OperateResult<byte[]> headResult = Receive( socket, netMsg.ProtocolHeadBytesLength );
+            OperateResult<byte[]> headResult = Receive( socket, netMessage.ProtocolHeadBytesLength );
             if (!headResult.IsSuccess)
             {
                 hslTimeOut.IsSuccessful = true;
-                result.CopyErrorFromOther( headResult );
-                return result;
+                return headResult;
             }
 
-            netMsg.HeadBytes = headResult.Content;
-            if (!netMsg.CheckHeadBytesLegal( Token.ToByteArray( ) ))
+            netMessage.HeadBytes = headResult.Content;
+            int contentLength = netMessage.GetContentLengthByHeadBytes( );
+            if (contentLength <= 0)
             {
-                // 令牌校验失败
                 hslTimeOut.IsSuccessful = true;
-                socket?.Close( );
-                LogNet?.WriteError( ToString( ), StringResources.Language.TokenCheckFailed );
-                result.Message = StringResources.Language.TokenCheckFailed;
-                return result;
+                return headResult;
             }
 
-
-            int contentLength = netMsg.GetContentLengthByHeadBytes( );
-            if (contentLength == 0)
+            OperateResult<byte[]> contentResult = Receive( socket, contentLength );
+            if (!contentResult.IsSuccess)
             {
-                netMsg.ContentBytes = new byte[0];
-            }
-            else
-            {
-                OperateResult<byte[]> contentResult = Receive( socket, contentLength );
-                if (!contentResult.IsSuccess)
-                {
-                    hslTimeOut.IsSuccessful = true;
-                    result.CopyErrorFromOther( contentResult );
-                    return result;
-                }
-
-                netMsg.ContentBytes = contentResult.Content;
+                hslTimeOut.IsSuccessful = true;
+                return contentResult;
             }
 
-            // 防止没有实例化造成后续的操作失败
-            if (netMsg.ContentBytes == null) netMsg.ContentBytes = new byte[0];
             hslTimeOut.IsSuccessful = true;
-            result.Content = netMsg;
-            result.IsSuccess = true;
-            return result;
+            netMessage.ContentBytes = contentResult.Content;
+            return OperateResult.CreateSuccessResult( SoftBasic.SpliceTwoByteArray( headResult.Content, contentResult.Content ) );
         }
         
-
         #endregion
 
         #region Send Content
@@ -368,6 +366,20 @@ namespace HslCommunication.Core.Net
         protected OperateResult Send( Socket socket, byte[] data )
         {
             if (data == null) return OperateResult.CreateSuccessResult( );
+
+            if (UseSynchronousNet)
+            {
+                try
+                {
+                    socket.Send( data );
+                    return OperateResult.CreateSuccessResult( );
+                }
+                catch (Exception ex)
+                {
+                    socket?.Close( );
+                    return new OperateResult<byte[]>( ex.Message );
+                }
+            }
 
             OperateResult result = new OperateResult( );
             ManualResetEvent sendDone = null;
@@ -504,68 +516,93 @@ namespace HslCommunication.Core.Net
         /// </example>
         protected OperateResult<Socket> CreateSocketAndConnect( IPEndPoint endPoint, int timeOut )
         {
-            OperateResult<Socket> result = new OperateResult<Socket>( );
-            ManualResetEvent connectDone = null;
-            StateObject state = null;
-            try
+            if (UseSynchronousNet)
             {
-                connectDone = new ManualResetEvent( false );
-                state = new StateObject( );
+                var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
+                try
+                {
+                    HslTimeOut connectTimeout = new HslTimeOut( )
+                    {
+                        WorkSocket = socket,
+                        DelayTime = timeOut
+                    };
+                    ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), connectTimeout );
+                    socket.Connect( endPoint );
+                    connectTimeout.IsSuccessful = true;
+
+                    return OperateResult.CreateSuccessResult( socket );
+                }
+                catch (Exception ex)
+                {
+                    socket?.Close( );
+                    return new OperateResult<Socket>( ex.Message );
+                }
             }
-            catch(Exception ex)
+            else
             {
-                return new OperateResult<Socket>( ex.Message );
-            }
+                OperateResult<Socket> result = new OperateResult<Socket>( );
+                ManualResetEvent connectDone = null;
+                StateObject state = null;
+                try
+                {
+                    connectDone = new ManualResetEvent( false );
+                    state = new StateObject( );
+                }
+                catch (Exception ex)
+                {
+                    return new OperateResult<Socket>( ex.Message );
+                }
 
 
-            var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
+                var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
 
-            // 超时验证的信息
-            HslTimeOut connectTimeout = new HslTimeOut( )
-            {
-                WorkSocket = socket,
-                DelayTime = timeOut
-            };
-            ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), connectTimeout );
+                // 超时验证的信息
+                HslTimeOut connectTimeout = new HslTimeOut( )
+                {
+                    WorkSocket = socket,
+                    DelayTime = timeOut
+                };
+                ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), connectTimeout );
 
-            try
-            {
-                state.WaitDone = connectDone;
-                state.WorkSocket = socket;
-                socket.BeginConnect( endPoint, new AsyncCallback( ConnectCallBack ), state );
-            }
-            catch (Exception ex)
-            {
-                // 直接失败
-                connectTimeout.IsSuccessful = true;                                  // 退出线程池的超时检查
-                LogNet?.WriteException( ToString( ), ex );                           // 记录错误日志
-                socket.Close( );                                                     // 关闭网络信息
-                connectDone.Close( );                                                // 释放等待资源
-                result.Message = StringResources.Language.ConnectedFailed + ex.Message;       // 传递错误消息
+                try
+                {
+                    state.WaitDone = connectDone;
+                    state.WorkSocket = socket;
+                    socket.BeginConnect( endPoint, new AsyncCallback( ConnectCallBack ), state );
+                }
+                catch (Exception ex)
+                {
+                    // 直接失败
+                    connectTimeout.IsSuccessful = true;                                  // 退出线程池的超时检查
+                    LogNet?.WriteException( ToString( ), ex );                           // 记录错误日志
+                    socket.Close( );                                                     // 关闭网络信息
+                    connectDone.Close( );                                                // 释放等待资源
+                    result.Message = StringResources.Language.ConnectedFailed + ex.Message;       // 传递错误消息
+                    return result;
+                }
+
+
+
+                // 等待连接完成
+                connectDone.WaitOne( );
+                connectDone.Close( );
+                connectTimeout.IsSuccessful = true;
+
+                if (state.IsError)
+                {
+                    // 连接失败
+                    result.Message = StringResources.Language.ConnectedFailed + state.ErrerMsg;
+                    socket?.Close( );
+                    return result;
+                }
+
+
+                result.Content = socket;
+                result.IsSuccess = true;
+                state.Clear( );
+                state = null;
                 return result;
             }
-            
-            
-
-            // 等待连接完成
-            connectDone.WaitOne( );
-            connectDone.Close( );
-            connectTimeout.IsSuccessful = true;
-
-            if (state.IsError)
-            {
-                // 连接失败
-                result.Message = StringResources.Language.ConnectedFailed + state.ErrerMsg;
-                socket?.Close( );
-                return result;
-            }
-
-
-            result.Content = socket;
-            result.IsSuccess = true;
-            state.Clear( );
-            state = null;
-            return result;
         }
 
 

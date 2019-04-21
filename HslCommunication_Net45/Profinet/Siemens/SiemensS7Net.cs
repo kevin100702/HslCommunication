@@ -141,21 +141,27 @@ namespace HslCommunication.Profinet.Siemens
         /// <param name="ipAddress">Ip地址 -> IpAddress</param>
         private void Initialization( SiemensPLCS siemens, string ipAddress )
         {
-            WordLength = 2;
-            IpAddress = ipAddress;
-            Port = 102;
-            CurrentPlc = siemens;
+            WordLength   = 2;
+            IpAddress    = ipAddress;
+            Port         = 102;
+            CurrentPlc   = siemens;
 
             switch (siemens)
             {
-                case SiemensPLCS.S1200: plcHead1[21] = 0; break;
-                case SiemensPLCS.S300: plcHead1[21] = 2; break;
-                case SiemensPLCS.S400: plcHead1[21] = 3; plcHead1[17] = 0x00; break;
-                case SiemensPLCS.S1500: plcHead1[21] = 0; break;
+                case SiemensPLCS.S1200:    plcHead1[21] = 0; break;
+                case SiemensPLCS.S300:     plcHead1[21] = 2; break;
+                case SiemensPLCS.S400:     plcHead1[21] = 3; plcHead1[17] = 0x00; break;
+                case SiemensPLCS.S1500:    plcHead1[21] = 0; break;
                 case SiemensPLCS.S200Smart:
                     {
                         plcHead1 = plcHead1_200smart;
                         plcHead2 = plcHead2_200smart;
+                        break;
+                    }
+                case SiemensPLCS.S200:
+                    {
+                        plcHead1 = plcHead1_200;
+                        plcHead2 = plcHead2_200;
                         break;
                     }
                 default: plcHead1[18] = 0; break;
@@ -201,18 +207,17 @@ namespace HslCommunication.Profinet.Siemens
         protected override OperateResult InitializationOnConnect( Socket socket )
         {
             // 第一次握手 -> First handshake
-            OperateResult<byte[], byte[]> read_first = ReadFromCoreServerBase( socket, plcHead1 );
+            OperateResult<byte[]> read_first = ReadFromCoreServer( socket, plcHead1 );
             if (!read_first.IsSuccess) return read_first;
 
             // 第二次握手 -> Second handshake
-            OperateResult<byte[], byte[]> read_second = ReadFromCoreServerBase( socket, plcHead2 );
+            OperateResult<byte[]> read_second = ReadFromCoreServer( socket, plcHead2 );
             if (!read_second.IsSuccess) return read_second;
 
             // 返回成功的信号 -> Return a successful signal
             return OperateResult.CreateSuccessResult( );
         }
-
-
+        
         #endregion
 
         #region Read OrderNumber
@@ -287,8 +292,7 @@ namespace HslCommunication.Profinet.Siemens
         #endregion
 
         #region Read Support
-
-
+        
         /// <summary>
         /// 从PLC读取数据，地址格式为I100，Q100，DB20.100，M100，T100，C100以字节为单位 ->
         /// Read data from PLC, address format I100，Q100，DB20.100，M100，T100，C100 in bytes
@@ -298,44 +302,6 @@ namespace HslCommunication.Profinet.Siemens
         /// <param name="length">读取的数量，以字节为单位 -> The number of reads, in bytes</param>
         /// <returns>是否读取成功的结果对象 -> Whether to read the successful result object</returns>
         /// <remarks>
-        /// 地址支持的列表如下：
-        /// <list type="table">
-        ///   <listheader>
-        ///     <term>地址名称</term>
-        ///     <term>示例</term>
-        ///     <term>地址进制</term>
-        ///   </listheader>
-        ///   <item>
-        ///     <term>中间寄存器</term>
-        ///     <term>M100,M200</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>输入寄存器</term>
-        ///     <term>I100,I200</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>输出寄存器</term>
-        ///     <term>Q100,Q200</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>DB寄存器</term>
-        ///     <term>DB1.100,DB1.200</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>定时器的值</term>
-        ///     <term>T100,T200</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>计数器的值</term>
-        ///     <term>C100,C200</term>
-        ///     <term>10</term>
-        ///   </item>
-        /// </list>
         /// <note type="important">对于200smartPLC的V区，就是DB1.X，例如，V100=DB1.100</note>
         /// </remarks>
         /// <example>
@@ -445,7 +411,6 @@ namespace HslCommunication.Profinet.Siemens
             OperateResult<byte[]> read = ReadFromCoreServer( command.Content );
             if (!read.IsSuccess) return read;
 
-
             // 分析结果 -> Analysis results
             int receiveCount = 0;
             for (int i = 0; i < length.Length; i++)
@@ -477,14 +442,10 @@ namespace HslCommunication.Profinet.Siemens
             }
             else
             {
-                return new OperateResult<byte[]>( ) { ErrorCode = read.ErrorCode, Message = StringResources.Language.SiemensDataLengthCheckFailed };
+                return new OperateResult<byte[]>( read.ErrorCode, StringResources.Language.SiemensDataLengthCheckFailed );
             }
         }
-
-
-
-
-
+        
         /// <summary>
         /// 读取指定地址的bool数据，地址格式为I100，M100，Q100，DB20.100 -> 
         /// reads bool data for the specified address in the format I100，M100，Q100，DB20.100
@@ -493,34 +454,6 @@ namespace HslCommunication.Profinet.Siemens
         /// Starting address, formatted as I100,M100,Q100,DB20.100</param>
         /// <returns>是否读取成功的结果对象 -> Whether to read the successful result object</returns>
         /// <remarks>
-        /// 地址支持的列表如下：
-        /// <list type="table">
-        ///   <listheader>
-        ///     <term>地址名称</term>
-        ///     <term>示例</term>
-        ///     <term>地址进制</term>
-        ///   </listheader>
-        ///   <item>
-        ///     <term>中间寄存器</term>
-        ///     <term>M100.0,M200.7</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>输入寄存器</term>
-        ///     <term>I100.0,I200.7</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>输出寄存器</term>
-        ///     <term>Q100.0,Q200.7</term>
-        ///     <term>10</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>DB寄存器</term>
-        ///     <term>DB1.100.0,DB1.200.7</term>
-        ///     <term>10</term>
-        ///   </item>
-        /// </list>
         /// <note type="important">
         /// 对于200smartPLC的V区，就是DB1.X，例如，V100=DB1.100
         /// </note>
@@ -533,8 +466,7 @@ namespace HslCommunication.Profinet.Siemens
         {
             return ByteTransformHelper.GetResultFromBytes( ReadBitFromPLC( address ), m => m[0] != 0x00 );
         }
-
-
+        
         /// <summary>
         /// 读取指定地址的byte数据，地址格式I100，M100，Q100，DB20.100 ->
         /// Reads the byte data of the specified address, the address format I100,Q100,DB20.100,M100
@@ -547,13 +479,11 @@ namespace HslCommunication.Profinet.Siemens
         {
             return ByteTransformHelper.GetResultFromArray( Read( address, 1 ) );
         }
-
-
+        
         #endregion
 
         #region Write Base
-
-
+        
         /// <summary>
         /// 基础的写入数据的操作支持 -> Operational support for the underlying write data
         /// </summary>
@@ -574,8 +504,7 @@ namespace HslCommunication.Profinet.Siemens
                 return OperateResult.CreateSuccessResult( );
             }
         }
-
-
+        
         /// <summary>
         /// 将数据写入到PLC数据，地址格式为I100，Q100，DB20.100，M100，以字节为单位 ->
         /// Writes data to the PLC data, in the address format I100,Q100,DB20.100,M100, in bytes
@@ -614,8 +543,7 @@ namespace HslCommunication.Profinet.Siemens
 
             return OperateResult.CreateSuccessResult( );
         }
-
-
+        
         /// <summary>
         /// 写入PLC的一个位，例如"M100.6"，"I100.7"，"Q100.0"，"DB20.100.0"，如果只写了"M100"默认为"M100.0" ->
         /// Write a bit of PLC, for example  "M100.6",  "I100.7",  "Q100.0",  "DB20.100.0", if only write  "M100" defaults to  "M100.0"
@@ -636,8 +564,7 @@ namespace HslCommunication.Profinet.Siemens
 
             return WriteBase( command.Content );
         }
-
-
+        
         #endregion
 
         #region Write bool[]
@@ -677,6 +604,74 @@ namespace HslCommunication.Profinet.Siemens
 
         #endregion
 
+        #region ReadWrite String
+
+        /// <summary>
+        /// 向设备中写入字符串，编码格式为ASCII
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="value">字符串数据</param>
+        /// <returns>是否写入成功的结果对象</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteString" title="String类型示例" />
+        /// </example>
+        public override OperateResult Write( string address, string value )
+        {
+            if (value == null) value = string.Empty;
+
+            byte[] buffer = Encoding.ASCII.GetBytes( value );
+            if (CurrentPlc != SiemensPLCS.S200Smart)
+            {
+                // need read one time
+                OperateResult<byte[]> readLength = Read( address, 2 );
+                if (!readLength.IsSuccess) return readLength;
+
+                if (readLength.Content[0] == 255) return new OperateResult<string>( "Value in plc is not string type" );
+                if (readLength.Content[0] == 0) readLength.Content[0] = 254; // allow to create new string
+                if (value.Length > readLength.Content[0]) return new OperateResult<string>( "String length is too long than plc defined" );
+
+                return Write( address, BasicFramework.SoftBasic.SpliceTwoByteArray( new byte[] { readLength.Content[0], (byte)buffer.Length }, buffer ) );
+            }
+            else
+            {
+                return Write( address, BasicFramework.SoftBasic.SpliceTwoByteArray( new byte[] { (byte)buffer.Length }, buffer ) );
+            }
+        }
+
+        /// <summary>
+        /// 读取西门子的地址的字符串信息，这个信息是和西门子绑定在一起，长度随西门子的信息动态变化的
+        /// </summary>
+        /// <param name="address">数据地址，具体的格式需要参照类的说明文档</param>
+        /// <returns>带有是否成功的字符串结果类对象</returns>
+        public OperateResult<string> ReadString( string address )
+        {
+            if (CurrentPlc != SiemensPLCS.S200Smart)
+            {
+                var read = Read( address, 2 );
+                if (!read.IsSuccess) return OperateResult.CreateFailedResult<string>( read );
+
+                if (read.Content[0] == 0 || read.Content[0] == 255) return new OperateResult<string>( "Value in plc is not string type" );    // max string length can't be zero
+
+                var readString = Read( address, (ushort)(2 + read.Content[1]) );
+                if (!readString.IsSuccess) return OperateResult.CreateFailedResult<string>( readString );
+
+                return OperateResult.CreateSuccessResult( Encoding.ASCII.GetString( readString.Content, 2, readString.Content.Length - 2 ) );
+            }
+            else
+            {
+                var read = Read( address, 1 );
+                if (!read.IsSuccess) return OperateResult.CreateFailedResult<string>( read );
+
+                var readString = Read( address, (ushort)(1 + read.Content[0]) );
+                if (!readString.IsSuccess) return OperateResult.CreateFailedResult<string>( readString );
+
+                return OperateResult.CreateSuccessResult( Encoding.ASCII.GetString( readString.Content, 1, readString.Content.Length - 1 ) );
+            }
+        }
+
+        #endregion
+
         #region Head Codes
 
         private byte[] plcHead1 = new byte[22]
@@ -706,7 +701,18 @@ namespace HslCommunication.Profinet.Siemens
             0x03,0x00,0x00,0x19,0x02,0xF0,0x80,0x32,0x01,0x00,0x00,0xCC,0xC1,0x00,0x08,0x00,
             0x00,0xF0,0x00,0x00,0x01,0x00,0x01,0x03,0xC0
         };
-        
+
+        private byte[] plcHead1_200 = new byte[]
+          {
+            0x03,0x00,0x00,0x16,0x11,0xE0,0x00,0x00,0x00,0x01,0x00,0xC1,0x02,0x4D,0x57,0xC2,
+            0x02,0x4D,0x57,0xC0,0x01,0x09
+          };
+        private byte[] plcHead2_200 = new byte[]
+        {
+            0x03,0x00,0x00,0x19,0x02,0xF0,0x80,0x32,0x01,0x00,0x00,0x00,0x00,0x00,0x08,0x00,
+            0x00,0xF0,0x00,0x00,0x01,0x00,0x01,0x03,0xC0
+        };
+
         byte[] S7_STOP = {
             0x03, 0x00, 0x00, 0x21, 0x02, 0xf0, 0x80, 0x32, 0x01, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x10, 0x00,
             0x00, 0x29, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x50, 0x5f, 0x50, 0x52, 0x4f, 0x47, 0x52, 0x41,
@@ -855,8 +861,7 @@ namespace HslCommunication.Profinet.Siemens
         #endregion
 
         #region Build Command
-
-
+        
         /// <summary>
         /// 生成一个读取字数据指令头的通用方法 ->
         /// A general method for generating a command header to read a Word data
