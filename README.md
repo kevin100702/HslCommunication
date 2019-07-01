@@ -45,7 +45,7 @@ in addition to the implementation of cross-program, cross-language, cross-platfo
 the realization of log function, flow number generation function, mail sending function, Fourier transform function, and so on, 
 will integrate more common features of industrial environment in the future.
 
-In order not to let the industry 4 stay on the slogan, the high-rise flat up, and the cornerstone is HSL.
+In order not to let the industry 4.0 stay on the slogan, the high-rise flat up, and the cornerstone is HSL.
 
 ## What can HSL do
 HSL can connect the equipment of the industrial production site to the free transmission of data at the bottom, whether active or passive, 
@@ -78,9 +78,50 @@ Install-Package HslCommunication
 * python: **Visual Studio Code**
 
 ## Contact
-* QQ Group1：[592132877](http://shang.qq.com/wpa/qunwpa?idkey=2278cb9c2e0c04fc305c43e41acff940499a34007dfca9e83a7291e726f9c4e8)(full)   Group2：948305931
 * Email: hsl200909@163.com
-* VIP Group (Reward more than 200RMB to join): [838185568](http://shang.qq.com/wpa/qunwpa?idkey=eee02ce1acde63c6316cbb380a80e033a14170ab7ca981f1cac83e0b657c8860)
+* ![reward](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/support.png)
+
+## Supported Model and price [welcome to complete]
+#### Siemens
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-SiemensS7Net-informational.svg) | ![pic](https://img.shields.io/badge/1215C-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+
+#### Melsec
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-MelsecMcNet-informational.svg) | ![pic](https://img.shields.io/badge/QJ71E71%20100-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+2 | ![pic](https://img.shields.io/badge/-MelsecMcNet-informational.svg) | ![pic](https://img.shields.io/badge/Q02H-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+3 | ![pic](https://img.shields.io/badge/-MelsecMcNet-informational.svg) | ![pic](https://img.shields.io/badge/L02H-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+4 | ![pic](https://img.shields.io/badge/-MelsecMcNet-informational.svg) | ![pic](https://img.shields.io/badge/Fx5u-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+
+#### AB plc
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-AllenBradleyNet-informational.svg) | ![pic](https://img.shields.io/badge/1769-Good-success.svg) | ￥ | &nbsp; | &nbsp;
+1 | ![pic](https://img.shields.io/badge/-AllenBradleyNet-informational.svg) | ![pic](https://img.shields.io/badge/1756-Good-success.svg) | ￥ | &nbsp; | &nbsp;
+
+#### Omron
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-OmronFinsNet-informational.svg) | - | ￥ | &nbsp;| &nbsp;
+
+#### Keyence
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-OmronFinsNet-informational.svg) | - | ￥ | &nbsp;| &nbsp;
+
+#### ModbusTcp
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-Modbus%20Tcp-informational.svg) | ![pic](https://img.shields.io/badge/1215C-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+4 | ![pic](https://img.shields.io/badge/-Modbus%20Tcp-informational.svg) | ![pic](https://img.shields.io/badge/Fx5u-Good-success.svg) | ￥ | &nbsp; | [Richard Hu](https://github.com/dathlin/HslCommunication)
+
+#### Panasonic
+No. | Class | Model | Price | Remarks | Contributor
+-|-|-|-|-|-
+1 | ![pic](https://img.shields.io/badge/-PanasonicMcNet-informational.svg) | ![pic](https://img.shields.io/badge/FP7%20CPS31E-Good-success.svg) | ￥ | &nbsp;| 镇江-Relax;
+
 
 ## HslCommunication.dll Summary 
 When I started working on this project, I had an idea of how to easily and quickly read and write PLC data. Our code logic should be very simple, 
@@ -272,10 +313,6 @@ Warmly welcome suggestions for improvement of the Code of this project, you can 
 [![Picture](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/partner/盛意达.jpg)](http://bjsyd.cn) [![Picture](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/partner/PENC.jpg)](http://www.penc.com)
 ![Picture](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/partner/rocket_Blue.png) ![Picture](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/partner/翔宇自控.jpg) 
 [![Picture](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/partner/杭州优海.png)](http://www.eohi700.com/)
-
-## Creative is not easy, thanks for the reward
-If this library really helps you, you can support me by AliPay. Please choose the amount according to your actual ability.
-![reward](https://raw.githubusercontent.com/dathlin/HslCommunication/master/imgs/support.png)
 
 ## Controls
 This library include some controls render upside picture. u can easily use them

@@ -22,6 +22,14 @@ namespace SimplifyNetTest
         private void FormServer_Load( object sender, EventArgs e )
         {
             textBox3.Text = Guid.Empty.ToString( );
+
+            checkBox1.CheckedChanged += CheckBox1_CheckedChanged;
+        }
+
+        private void CheckBox1_CheckedChanged( object sender, EventArgs e )
+        {
+            if (simplifyServer != null)
+                simplifyServer.IsUseAccountCertificate = checkBox1.Checked;
         }
 
         #region Simplify Net
@@ -36,8 +44,13 @@ namespace SimplifyNetTest
                 simplifyServer = new NetSimplifyServer( );                                          // 实例化
                 simplifyServer.Token = new Guid( textBox3.Text );                                   // 设置令牌
                 simplifyServer.ReceiveStringEvent += SimplifyServer_ReceiveStringEvent;             // 接收字符串的时候触发
+                simplifyServer.ReceiveStringArrayEvent += SimplifyServer_ReceiveStringArrayEvent;
                 simplifyServer.LogNet = new HslCommunication.LogNet.LogNetSingle( Application.StartupPath + @"\Logs\log.txt" );
                 simplifyServer.LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;                  // 日志保存前先显示出来
+
+                simplifyServer.AddAccount( "admin", "123456" );
+                simplifyServer.AddAccount( "hsl", "test" );
+                simplifyServer.IsUseAccountCertificate = checkBox1.Checked;
                 simplifyServer.ServerStart( int.Parse( textBox1.Text ) );                           // 启动服务
                 userButton1.Enabled = false;
 
@@ -51,6 +64,11 @@ namespace SimplifyNetTest
             {
                 MessageBox.Show( "创建失败：" + ex.Message );
             }
+        }
+
+        private void SimplifyServer_ReceiveStringArrayEvent( AppSession setssion, NetHandle handle, string[] array )
+        {
+            simplifyServer.SendMessage( setssion, handle, array );
         }
 
         private void TimerSecond_Tick( object sender, EventArgs e )

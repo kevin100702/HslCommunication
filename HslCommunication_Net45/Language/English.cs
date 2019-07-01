@@ -17,6 +17,7 @@ namespace HslCommunication.Language
          * 
          ************************************************************************************/
 
+        public override string AuthorizationFailed => "System authorization failed, need to use activation code authorization, thank you for your support.";
         public override string ConnectedFailed => "Connected Failed: ";
         public override string ConnectedSuccess => "Connect Success !";
         public override string UnknownError => "Unknown Error";
@@ -66,6 +67,7 @@ namespace HslCommunication.Language
         public override string SocketSendException => "Synchronous Data Send exception: ";
         public override string SocketHeadReceiveException => "Command header receive exception: ";
         public override string SocketContentReceiveException => "Content Data Receive exception: ";
+        public override string NetClientAccountTimeout => "Wait for account check timeout：";
         public override string SocketContentRemoteReceiveException => "Recipient content Data Receive exception: ";
         public override string SocketAcceptCallbackException => "Asynchronously accepts an incoming connection attempt: ";
         public override string SocketReAcceptCallbackException => "To re-accept incoming connection attempts asynchronously";
@@ -209,6 +211,7 @@ namespace HslCommunication.Language
         public override string SiemensReadLengthCannotLargerThan19 => "The number of arrays read does not allow greater than 19";
         public override string SiemensDataLengthCheckFailed => "Block length checksum failed, please check if Put/get is turned on and DB block optimization is turned off";
         public override string SiemensFWError => "An exception occurred, the specific information to find the Fetch/write protocol document";
+        public override string SiemensReadLengthOverPlcAssign => "The range of data read exceeds the setting of the PLC";
 
         /***********************************************************************************
          * 
@@ -288,6 +291,39 @@ namespace HslCommunication.Language
         public override string PanasonicMewStatus65 => "Protection Error: Performs a write operation to the program area or system register in the storage protection state.";
         public override string PanasonicMewStatus66 => "Address Error: Address (program address, absolute address, etc.) Data encoding form (BCD, hex, etc.), overflow, underflow, or specified range error.";
         public override string PanasonicMewStatus67 => "Missing data error: The data to be read does not exist. (reads data that is not written to the comment register.)";
+
+
+        /***********************************************************************************
+         * 
+         *   Fatek PLC 永宏PLC相关
+         * 
+         ************************************************************************************/
+        public override string FatekStatus02 => "Illegal value";
+        public override string FatekStatus03 => "Write disabled";
+        public override string FatekStatus04 => "Invalid command code";
+        public override string FatekStatus05 => "Cannot be activated (down RUN command but Ladder Checksum does not match)";
+        public override string FatekStatus06 => "Cannot be activated (down RUN command but PLC ID ≠ Ladder ID)";
+        public override string FatekStatus07 => "Cannot be activated (down RUN command but program syntax error)";
+        public override string FatekStatus09 => "Cannot be activated (down RUN command, but the ladder program command PLC cannot be executed)";
+        public override string FatekStatus10 => "Illegal address";
+
+
+
+        /***********************************************************************************
+         * 
+         *   Fuji PLC 富士PLC相关
+         * 
+         ************************************************************************************/
+        public override string FujiSpbStatus01 => "Write to the ROM";
+        public override string FujiSpbStatus02 => "Received undefined commands or commands that could not be processed";
+        public override string FujiSpbStatus03 => "There is a contradiction in the data part (parameter exception)";
+        public override string FujiSpbStatus04 => "Unable to process due to transfer interlocks from other programmers";
+        public override string FujiSpbStatus05 => "The module number is incorrect";
+        public override string FujiSpbStatus06 => "Search item not found";
+        public override string FujiSpbStatus07 => "An address that exceeds the module range (when writing) is specified";
+        public override string FujiSpbStatus09 => "Unable to execute due to faulty program (RUN)";
+        public override string FujiSpbStatus0C => "Inconsistent password";
+
 
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
 

@@ -23,10 +23,6 @@ using System.Threading.Tasks;
  * 
  *************************************************************************************/
 
-
-
-
-
 namespace HslCommunication.Core.Net
 {
     /// <summary>
@@ -82,7 +78,7 @@ namespace HslCommunication.Core.Net
         /// <summary>
         /// 是否使用同步的网络通讯
         /// </summary>
-        public bool UseSynchronousNet { get; set; } = true;
+        public bool UseSynchronousNet { get; set; } = false;
 
         #endregion
 
@@ -151,16 +147,8 @@ namespace HslCommunication.Core.Net
         {
             if (length == 0) return OperateResult.CreateSuccessResult( new byte[0] );
 
-            //try
-            //{
-            //    return OperateResult.CreateSuccessResult( NetSupport.ReadBytesFromSocket( socket, length ) );
-            //}
-            //catch(Exception ex)
-            //{
-            //    return new OperateResult<byte[]>( ex.Message );
-            //}
+            if (!Authorization.nzugaydgwadawdibbas( )) return new OperateResult<byte[]>( StringResources.Language.AuthorizationFailed );
 
-            //#if NET35
             if (UseSynchronousNet)
             {
                 try
@@ -168,13 +156,13 @@ namespace HslCommunication.Core.Net
                     byte[] data = NetSupport.ReadBytesFromSocket( socket, length );
                     return OperateResult.CreateSuccessResult( data );
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     socket?.Close( );
+                    LogNet?.WriteException( ToString( ), "Receive", ex );
                     return new OperateResult<byte[]>( ex.Message );
                 }
             }
-
 
             OperateResult<byte[]> result = new OperateResult<byte[]>( );
             ManualResetEvent receiveDone = null;
@@ -184,12 +172,12 @@ namespace HslCommunication.Core.Net
                 receiveDone = new ManualResetEvent( false );
                 state = new StateObject( length );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new OperateResult<byte[]>( ex.Message );
             }
 
-            
+
             try
             {
                 state.WaitDone = receiveDone;
@@ -243,20 +231,6 @@ namespace HslCommunication.Core.Net
             state.Clear( );
             state = null;
             return result;
-
-//#else
-            //SocketAsyncEventArgs eventArgs = new SocketAsyncEventArgs( );
-            //byte[] buffer = new byte[length];
-            //eventArgs.SetBuffer( buffer, 0, length );
-            //int receiveCount = 0;
-            //while (true)
-            //{
-            //    socket.ReceiveAsync( eventArgs );
-            //    receiveCount += eventArgs.BytesTransferred;
-            //    if (receiveCount == length) break;
-            //}
-            //return OperateResult.CreateSuccessResult( buffer );
-//#endif
         }
 
 
@@ -296,13 +270,95 @@ namespace HslCommunication.Core.Net
                 catch (Exception ex)
                 {
                     state.IsError = true;
-                    LogNet?.WriteException( ToString( ), ex );
+                    LogNet?.WriteException( ToString( ), "ReceiveCallback", ex );
                     state.ErrerMsg = ex.Message;
                     state.WaitDone.Set( );
                 }
             }
         }
 
+#if !NET35
+
+        /// <summary>
+        /// 接收固定长度的字节数组
+        /// </summary>
+        /// <remarks>
+        /// Receive Special Length Bytes
+        /// </remarks>
+        /// <param name="socket">网络通讯的套接字</param>
+        /// <param name="length">准备接收的数据长度</param>
+        /// <returns>包含了字节数据的结果类</returns>
+        protected OperateResult<byte[]> ReceiveAsync( Socket socket, int length )
+        {
+            if (length <= 0) return OperateResult.CreateSuccessResult( new byte[0] );
+
+            var state               = new StateObjectAsync<byte[]>( length );
+            state.Tcs               = new TaskCompletionSource<byte[]>( );
+            state.WorkSocket        = socket;
+
+            try
+            {
+                socket.BeginReceive( state.Buffer, state.AlreadyDealLength, state.DataLength - state.AlreadyDealLength,
+                    SocketFlags.None, new AsyncCallback( ReceiveAsyncCallback ), state );
+                byte[] byteResult = state.Tcs.Task.Result;
+                if (byteResult == null)
+                {
+                    socket?.Close( );
+                    return new OperateResult<byte[]>( StringResources.Language.RemoteClosedConnection );
+                }
+
+                state.Clear( );
+                state = null;
+                return OperateResult.CreateSuccessResult( byteResult );
+            }
+            catch (Exception ex)
+            {
+                return new OperateResult<byte[]>( ex.Message );
+            }
+        }
+
+        private void ReceiveAsyncCallback( IAsyncResult ar )
+        {
+            if (ar.AsyncState is StateObjectAsync<byte[]> state)
+            {
+                try
+                {
+                    Socket socket = state.WorkSocket;
+                    int bytesRead = socket.EndReceive( ar );
+
+                    if (bytesRead > 0)
+                    {
+                        // 接收到了数据
+                        state.AlreadyDealLength += bytesRead;
+                        if (state.AlreadyDealLength < state.DataLength)
+                        {
+                            // 获取接下来的所有的数据
+                            socket.BeginReceive( state.Buffer, state.AlreadyDealLength, state.DataLength - state.AlreadyDealLength,
+                                SocketFlags.None, new AsyncCallback( ReceiveAsyncCallback ), state );
+                        }
+                        else
+                        {
+                            // 接收到了所有的数据，通知接收数据的线程继续
+                            state.Tcs.SetResult( state.Buffer );
+                        }
+                    }
+                    else
+                    {
+                        // 对方关闭了网络通讯
+                        state.IsClose = true;
+                        state.Tcs.SetResult( null );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    state.IsError = true;
+                    LogNet?.WriteException( ToString( ), "ReceiveAsyncCallback", ex );
+                    state.Tcs.SetException( ex );
+                }
+            }
+        }
+
+#endif
 
         #endregion
 
@@ -352,7 +408,7 @@ namespace HslCommunication.Core.Net
             netMessage.ContentBytes = contentResult.Content;
             return OperateResult.CreateSuccessResult( SoftBasic.SpliceTwoByteArray( headResult.Content, contentResult.Content ) );
         }
-        
+
         #endregion
 
         #region Send Content
@@ -367,6 +423,8 @@ namespace HslCommunication.Core.Net
         {
             if (data == null) return OperateResult.CreateSuccessResult( );
 
+            if (!Authorization.nzugaydgwadawdibbas( )) return new OperateResult<byte[]>( StringResources.Language.AuthorizationFailed );
+
             if (UseSynchronousNet)
             {
                 try
@@ -377,6 +435,7 @@ namespace HslCommunication.Core.Net
                 catch (Exception ex)
                 {
                     socket?.Close( );
+                    LogNet?.WriteException( "Send", ex );
                     return new OperateResult<byte[]>( ex.Message );
                 }
             }
@@ -389,7 +448,7 @@ namespace HslCommunication.Core.Net
                 sendDone = new ManualResetEvent( false );
                 state = new StateObject( data.Length );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new OperateResult( ex.Message );
             }
@@ -462,13 +521,75 @@ namespace HslCommunication.Core.Net
                 {
                     // 发生了异常
                     state.IsError = true;
-                    LogNet?.WriteException( ToString( ), ex );
+                    LogNet?.WriteException( ToString( ), "SendCallBack", ex );
                     state.ErrerMsg = ex.Message;
                     state.WaitDone.Set( );
                 }
             }
         }
 
+#if !NET35
+
+        /// <summary>
+        /// 发送一个异步的数据信息，该方式在NET35里是不可用的。
+        /// </summary>
+        /// <param name="socket">网络的套接字</param>
+        /// <param name="data">数据内容</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendAsync( Socket socket, byte[] data )
+        {
+            if (data == null) return OperateResult.CreateSuccessResult( );
+            if (data.Length == 0) return OperateResult.CreateSuccessResult( );
+
+            var state              = new StateObjectAsync<bool>( data.Length );
+            state.Tcs              = new TaskCompletionSource<bool>( );
+            state.WorkSocket       = socket;
+            state.Buffer           = data;
+
+            try
+            {
+                socket.BeginSend( state.Buffer, state.AlreadyDealLength, state.DataLength - state.AlreadyDealLength,
+                    SocketFlags.None, new AsyncCallback( SendAsyncCallBack ), state );
+                bool boolResult = state.Tcs.Task.Result;
+                return OperateResult.CreateSuccessResult( );
+            }
+            catch (Exception ex)
+            {
+                return new OperateResult( ex.Message );
+            }
+        }
+
+        private void SendAsyncCallBack( IAsyncResult ar )
+        {
+            if (ar.AsyncState is StateObjectAsync<bool> state)
+            {
+                try
+                {
+                    Socket socket            = state.WorkSocket;
+                    state.AlreadyDealLength += socket.EndSend( ar );
+
+                    if (state.AlreadyDealLength < state.DataLength)
+                    {
+                        // 继续发送数据
+                        socket.BeginSend( state.Buffer, state.AlreadyDealLength, state.DataLength - state.AlreadyDealLength,
+                            SocketFlags.None, new AsyncCallback( SendAsyncCallBack ), state );
+                    }
+                    else
+                    {
+                        // 发送完成
+                        state.Tcs.SetResult( true );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    state.IsError = true;
+                    LogNet?.WriteException( "SendAsyncCallBack", ex );
+                    state.Tcs.SetException( ex );
+                }
+            }
+        }
+
+#endif
 
         #endregion
 
@@ -535,6 +656,7 @@ namespace HslCommunication.Core.Net
                 catch (Exception ex)
                 {
                     socket?.Close( );
+                    LogNet?.WriteException( "CreateSocketAndConnect", ex );
                     return new OperateResult<Socket>( ex.Message );
                 }
             }
@@ -555,7 +677,6 @@ namespace HslCommunication.Core.Net
 
 
                 var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-
                 // 超时验证的信息
                 HslTimeOut connectTimeout = new HslTimeOut( )
                 {
@@ -624,12 +745,64 @@ namespace HslCommunication.Core.Net
                 {
                     // 发生了异常
                     state.IsError = true;
-                    LogNet?.WriteException( ToString( ), ex );
+                    LogNet?.WriteException( ToString( ), "ConnectCallBack", ex );
                     state.ErrerMsg = ex.Message;
                     state.WaitDone.Set( );
                 }
             }
         }
+
+#if !NET35
+
+        private OperateResult<Socket> ConnectAsync( IPEndPoint endPoint, int timeOut )
+        {
+            var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
+            var state = new StateObjectAsync<Socket>( );
+            state.Tcs = new TaskCompletionSource<Socket>( );
+            state.WorkSocket = socket;
+
+            // timeout check
+            HslTimeOut connectTimeout = new HslTimeOut( )
+            {
+                WorkSocket = socket,
+                DelayTime = timeOut
+            };
+            ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), connectTimeout );
+
+            try
+            {
+                socket.BeginConnect( endPoint, new AsyncCallback( ConnectAsyncCallBack ), state );
+                socket = state.Tcs.Task.Result;
+                return OperateResult.CreateSuccessResult( socket );
+            }
+            catch (Exception ex)
+            {
+                return new OperateResult<Socket>( ex.Message );
+            }
+        }
+
+        private void ConnectAsyncCallBack( IAsyncResult ar )
+        {
+            if (ar.AsyncState is StateObjectAsync<Socket> state)
+            {
+                try
+                {
+                    Socket socket = state.WorkSocket;
+                    socket.EndConnect( ar );
+                    state.Tcs.SetResult( socket );
+                }
+                catch (Exception ex)
+                {
+                    // 发生了异常
+                    state.IsError = true;
+                    LogNet?.WriteException( "ConnectAsyncCallBack", ex );
+                    state.ErrerMsg = ex.Message;
+                    state.Tcs.SetException( ex );
+                }
+            }
+        }
+
+#endif
 
 
         #endregion
@@ -651,7 +824,7 @@ namespace HslCommunication.Core.Net
         /// <param name="stream">数据流</param>
         /// <param name="buffer">缓冲区</param>
         /// <returns>带有成功标志的读取数据长度</returns>
-        protected OperateResult<int> ReadStream( Stream stream, byte[] buffer)
+        protected OperateResult<int> ReadStream( Stream stream, byte[] buffer )
         {
             ManualResetEvent WaitDone = new ManualResetEvent( false );
             FileStateObject stateObject = new FileStateObject
@@ -738,7 +911,7 @@ namespace HslCommunication.Core.Net
                 LogNet?.WriteException( ToString( ), ex );
                 stateObject = null;
                 WaitDone.Close( );
-                return new OperateResult( );
+                return new OperateResult( ex.Message );
             }
 
             WaitDone.WaitOne( );
@@ -754,8 +927,6 @@ namespace HslCommunication.Core.Net
             {
                 return OperateResult.CreateSuccessResult( );
             }
-
-
         }
 
         private void WriteStreamCallBack( IAsyncResult ar )
@@ -781,6 +952,259 @@ namespace HslCommunication.Core.Net
 
         #endregion
 
+        #region Token Check
+
+        /// <summary>
+        /// 检查当前的头子节信息的令牌是否是正确的
+        /// </summary>
+        /// <param name="headBytes">头子节数据</param>
+        /// <returns>令牌是验证成功</returns>
+        protected bool CheckRemoteToken( byte[] headBytes )
+        {
+            return SoftBasic.IsByteTokenEquel( headBytes, Token );
+        }
+
+        #endregion
+
+        #region Special Bytes Send
+
+        /// <summary>
+        /// [自校验] 发送字节数据并确认对方接收完成数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">网络套接字</param>
+        /// <param name="headcode">头指令</param>
+        /// <param name="customer">用户指令</param>
+        /// <param name="send">发送的数据</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendBaseAndCheckReceive( Socket socket, int headcode, int customer, byte[] send )
+        {
+            // 数据处理
+            send = HslProtocol.CommandBytes( headcode, customer, Token, send );
+
+            // 发送数据
+            OperateResult sendResult = Send( socket, send );
+            if (!sendResult.IsSuccess) return sendResult;
+
+            // 检查对方接收完成
+            OperateResult<long> checkResult = ReceiveLong( socket );
+            if (!checkResult.IsSuccess) return checkResult;
+
+            // 检查长度接收
+            if (checkResult.Content != send.Length)
+            {
+                socket?.Close( );
+                return new OperateResult( StringResources.Language.CommandLengthCheckFailed );
+            }
+
+            return checkResult;
+        }
+
+
+        /// <summary>
+        /// [自校验] 发送字节数据并确认对方接收完成数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">网络套接字</param>
+        /// <param name="customer">用户指令</param>
+        /// <param name="send">发送的数据</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendBytesAndCheckReceive( Socket socket, int customer, byte[] send )
+        {
+            return SendBaseAndCheckReceive( socket, HslProtocol.ProtocolUserBytes, customer, send );
+        }
+
+
+        /// <summary>
+        /// [自校验] 直接发送字符串数据并确认对方接收完成数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">网络套接字</param>
+        /// <param name="customer">用户指令</param>
+        /// <param name="send">发送的数据</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendStringAndCheckReceive( Socket socket, int customer, string send )
+        {
+            byte[] data = string.IsNullOrEmpty( send ) ? null : Encoding.Unicode.GetBytes( send );
+
+            return SendBaseAndCheckReceive( socket, HslProtocol.ProtocolUserString, customer, data );
+        }
+
+        /// <summary>
+        /// [自校验] 直接发送字符串数组并确认对方接收完成数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">网络套接字</param>
+        /// <param name="customer">用户指令</param>
+        /// <param name="sends">发送的字符串数组</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendStringAndCheckReceive( Socket socket, int customer, string[] sends )
+        {
+            return SendBaseAndCheckReceive( socket, HslProtocol.ProtocolUserStringArray, customer, HslProtocol.PackStringArrayToByte( sends ) );
+        }
+
+        /// <summary>
+        /// [自校验] 直接发送字符串数组并确认对方接收完成数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">网络套接字</param>
+        /// <param name="customer">用户指令</param>
+        /// <param name="name">用户名</param>
+        /// <param name="pwd">密码</param>
+        /// <returns>是否发送成功</returns>
+        protected OperateResult SendAccountAndCheckReceive( Socket socket, int customer, string name, string pwd )
+        {
+            return SendBaseAndCheckReceive( socket, HslProtocol.ProtocolAccountLogin, customer, HslProtocol.PackStringArrayToByte( new string[] { name, pwd } ) );
+        }
+
+        /// <summary>
+        /// [自校验] 接收一条完整的同步数据，包含头子节和内容字节，基础的数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">套接字</param>
+        /// <param name="timeout">超时时间设置，如果为负数，则不检查超时</param>
+        /// <returns>包含是否成功的结果对象</returns>
+        /// <exception cref="ArgumentNullException">result</exception>
+        protected OperateResult<byte[], byte[]> ReceiveAndCheckBytes( Socket socket, int timeout )
+        {
+            // 30秒超时接收验证
+            HslTimeOut hslTimeOut = new HslTimeOut( )
+            {
+                DelayTime = timeout,
+                IsSuccessful = false,
+                StartTime = DateTime.Now,
+                WorkSocket = socket,
+            };
+
+            if (timeout > 0) ThreadPool.QueueUserWorkItem( new WaitCallback( ThreadPoolCheckTimeOut ), hslTimeOut );
+
+            // 接收头指令
+            OperateResult<byte[]> headResult = Receive( socket, HslProtocol.HeadByteLength );
+            if (!headResult.IsSuccess)
+            {
+                hslTimeOut.IsSuccessful = true;
+                return OperateResult.CreateFailedResult<byte[], byte[]>( headResult );
+            }
+            hslTimeOut.IsSuccessful = true;
+
+            // 检查令牌
+            if (!CheckRemoteToken( headResult.Content ))
+            {
+                socket?.Close( );
+                return new OperateResult<byte[], byte[]>( StringResources.Language.TokenCheckFailed );
+            }
+
+            int contentLength = BitConverter.ToInt32( headResult.Content, HslProtocol.HeadByteLength - 4 );
+            // 接收内容
+            OperateResult<byte[]> contentResult = Receive( socket, contentLength );
+            if (!contentResult.IsSuccess) return OperateResult.CreateFailedResult<byte[], byte[]>( contentResult );
+
+            // 返回成功信息
+            OperateResult checkResult = SendLong( socket, HslProtocol.HeadByteLength + contentLength );
+            if (!checkResult.IsSuccess) return OperateResult.CreateFailedResult<byte[], byte[]>( checkResult );
+
+            byte[] head = headResult.Content;
+            byte[] content = contentResult.Content;
+            content = HslProtocol.CommandAnalysis( head, content );
+            return OperateResult.CreateSuccessResult( head, content );
+        }
+
+        /// <summary>
+        /// [自校验] 从网络中接收一个字符串数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">套接字</param>
+        /// <returns>包含是否成功的结果对象</returns>
+        protected OperateResult<int, string> ReceiveStringContentFromSocket( Socket socket )
+        {
+            OperateResult<byte[], byte[]> receive = ReceiveAndCheckBytes( socket, 10000 );
+            if (!receive.IsSuccess) return OperateResult.CreateFailedResult<int, string>( receive );
+
+            // 检查是否是字符串信息
+            if (BitConverter.ToInt32( receive.Content1, 0 ) != HslProtocol.ProtocolUserString)
+            {
+                LogNet?.WriteError( ToString( ), StringResources.Language.CommandHeadCodeCheckFailed );
+                socket?.Close( );
+                return new OperateResult<int, string>( StringResources.Language.CommandHeadCodeCheckFailed );
+            }
+
+            if (receive.Content2 == null) receive.Content2 = new byte[0];
+            // 分析数据
+            return OperateResult.CreateSuccessResult( BitConverter.ToInt32( receive.Content1, 4 ), Encoding.Unicode.GetString( receive.Content2 ) );
+        }
+
+        /// <summary>
+        /// [自校验] 从网络中接收一个字符串数组，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">套接字</param>
+        /// <returns>包含是否成功的结果对象</returns>
+        protected OperateResult<int, string[]> ReceiveStringArrayContentFromSocket( Socket socket )
+        {
+            OperateResult<byte[], byte[]> receive = ReceiveAndCheckBytes( socket, 10000 );
+            if (!receive.IsSuccess) return OperateResult.CreateFailedResult<int, string[]>( receive );
+
+            // 检查是否是字符串信息
+            if (BitConverter.ToInt32( receive.Content1, 0 ) != HslProtocol.ProtocolUserStringArray)
+            {
+                LogNet?.WriteError( ToString( ), StringResources.Language.CommandHeadCodeCheckFailed );
+                socket?.Close( );
+                return new OperateResult<int, string[]>( StringResources.Language.CommandHeadCodeCheckFailed );
+            }
+
+            if (receive.Content2 == null) receive.Content2 = new byte[4];
+            return OperateResult.CreateSuccessResult( BitConverter.ToInt32( receive.Content1, 4 ), HslProtocol.UnPackStringArrayFromByte( receive.Content2 ) );
+        }
+
+        /// <summary>
+        /// [自校验] 从网络中接收一串字节数据，如果结果异常，则结束通讯
+        /// </summary>
+        /// <param name="socket">套接字的网络</param>
+        /// <returns>包含是否成功的结果对象</returns>
+        protected OperateResult<int, byte[]> ReceiveBytesContentFromSocket( Socket socket )
+        {
+            OperateResult<byte[], byte[]> receive = ReceiveAndCheckBytes( socket, 10000 );
+            if (!receive.IsSuccess) return OperateResult.CreateFailedResult<int, byte[]>( receive );
+
+            // 检查是否是字节信息
+            if (BitConverter.ToInt32( receive.Content1, 0 ) != HslProtocol.ProtocolUserBytes)
+            {
+                LogNet?.WriteError( ToString( ), StringResources.Language.CommandHeadCodeCheckFailed );
+                socket?.Close( );
+                return new OperateResult<int, byte[]>( StringResources.Language.CommandHeadCodeCheckFailed );
+            }
+
+            // 分析数据
+            return OperateResult.CreateSuccessResult( BitConverter.ToInt32( receive.Content1, 4 ), receive.Content2 );
+        }
+
+
+        /// <summary>
+        /// 从网络中接收Long数据
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <returns></returns>
+        private OperateResult<long> ReceiveLong( Socket socket )
+        {
+            OperateResult<byte[]> read = Receive( socket, 8 );
+            if (read.IsSuccess)
+            {
+                return OperateResult.CreateSuccessResult( BitConverter.ToInt64( read.Content, 0 ) );
+            }
+            else
+            {
+                return new OperateResult<long>( )
+                {
+                    Message = read.Message,
+                };
+            }
+        }
+
+        /// <summary>
+        /// 将long数据发送到套接字
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private OperateResult SendLong( Socket socket, long value )
+        {
+            return Send( socket, BitConverter.GetBytes( value ) );
+        }
+
+        #endregion
+
         #region Object Override
 
         /// <summary>
@@ -795,6 +1219,4 @@ namespace HslCommunication.Core.Net
         #endregion
 
     }
-
-    
 }

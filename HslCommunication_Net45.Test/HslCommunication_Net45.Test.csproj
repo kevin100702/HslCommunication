@@ -57,9 +57,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceMcNet.cs">
-      <Link>Profinet\Keyence\KeyenceMcNet.cs</Link>
-    </Compile>
     <Compile Include="BasicFramework\SoftBasicTest.cs" />
     <Compile Include="BasicFramework\SoftBufferTest.cs" />
     <Compile Include="BasicFramework\SoftSecurityTest.cs" />
@@ -102,6 +99,7 @@
     <Compile Include="Enthernet\RedisClientTest.cs" />
     <Compile Include="Modbus\ModbusTcpTest.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyHelper.cs" />
+    <Compile Include="Profinet\FATEK\FatekProgramTest.cs" />
     <Compile Include="Profinet\Melsec\MelsecFxLinksTest.cs" />
     <Compile Include="Profinet\Melsec\MelsecFxSerialTest.cs" />
     <Compile Include="Profinet\Melsec\MelsecMcAsciiNetTest.cs" />
@@ -113,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\Samples\LogNet\" />
+    <Folder Include="Profinet\Keyence\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

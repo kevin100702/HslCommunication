@@ -20,20 +20,6 @@ namespace HslCommunicationDemo
             InitializeComponent( );
         }
 
-
-
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
-        {
-            try
-            {
-                System.Diagnostics.Process.Start( linkLabel1.Text );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show( ex.Message );
-            }
-        }
-
         private void FormSiemens_Load( object sender, EventArgs e )
         {
             panel2.Enabled = false;
@@ -42,10 +28,6 @@ namespace HslCommunicationDemo
             if(Program.Language == 2)
             {
                 Text = "S7 Virtual Server [data support i,q,m,db block read and write, db block only one, whether it is DB1.1 or DB100.1 refers to the same]";
-                label2.Text = "blogs:";
-                label4.Text = "Agreement";
-                linkLabel2.Text = "thanks for the reward";
-                label20.Text = "Author:Hsl";
                 label3.Text = "port:";
                 button1.Text = "Start Server";
                 button11.Text = "Close Server";
@@ -149,8 +131,8 @@ namespace HslCommunicationDemo
             {
 
                 s7NetServer = new HslCommunication.Profinet.Siemens.SiemensS7Server( );                       // 实例化对象
-                s7NetServer.LogNet = new HslCommunication.LogNet.LogNetSingle( "logs.txt" );        // 配置日志信息
-                s7NetServer.LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;
+                //s7NetServer.LogNet = new HslCommunication.LogNet.LogNetSingle( "logs.txt" );                  // 配置日志信息
+                //s7NetServer.LogNet.BeforeSaveToFile += LogNet_BeforeSaveToFile;
                 s7NetServer.OnDataReceived += BusTcpServer_OnDataReceived;
                 
                 s7NetServer.ServerStart( port );
@@ -466,29 +448,6 @@ namespace HslCommunicationDemo
             form.ShowDialog( );
         }
 
-
-        private void Test1( )
-        {
-            short Short100      = s7NetServer.ReadInt16( "100" ).Content;               // 读取寄存器值
-            ushort UShort100    = s7NetServer.ReadUInt16( "100" ).Content;              // 读取寄存器ushort值
-            int Int100          = s7NetServer.ReadInt32( "100" ).Content;               // 读取寄存器int值
-            uint UInt100        = s7NetServer.ReadUInt32( "100" ).Content;              // 读取寄存器uint值
-            float Float100      = s7NetServer.ReadFloat( "100" ).Content;               // 读取寄存器Float值
-            long Long100        = s7NetServer.ReadInt64( "100" ).Content;               // 读取寄存器long值
-            ulong ULong100      = s7NetServer.ReadUInt64( "100" ).Content;              // 读取寄存器ulong值
-            double Double100    = s7NetServer.ReadDouble( "100" ).Content;              // 读取寄存器double值
-
-
-            s7NetServer.Write( "100", (short)5 );                          // 写入short值
-            s7NetServer.Write( "100", (ushort)45678 );                     // 写入ushort值
-            s7NetServer.Write( "100", 12345667 );                          // 写入int值
-            s7NetServer.Write( "100", (uint)12312312 );                    // 写入uint值
-            s7NetServer.Write( "100", 123.456f );                          // 写入float值
-            s7NetServer.Write( "100", 1231231231233L );                    // 写入long值
-            s7NetServer.Write( "100", 1212312313UL );                      // 写入ulong值
-            s7NetServer.Write( "100", 123.456d );                          // 写入double值
-        }
-
         private void button4_Click( object sender, EventArgs e )
         {
             // 连接异形客户端
@@ -540,7 +499,7 @@ namespace HslCommunicationDemo
 
 
         private string timerAddress = string.Empty;
-        private ushort timerValue = 0;
+        private long timerValue = 0;
         private System.Windows.Forms.Timer timerWrite = null;
         private void button10_Click( object sender, EventArgs e )
         {
@@ -555,7 +514,8 @@ namespace HslCommunicationDemo
 
         private void TimerWrite_Tick( object sender, EventArgs e )
         {
-            s7NetServer.Write( timerAddress, timerValue );
+            ushort value = (ushort)(Math.Sin( 2 * Math.PI * timerValue / 100 ) * 100 + 100);
+            s7NetServer.Write( timerAddress, value );
             timerValue++;
         }
 

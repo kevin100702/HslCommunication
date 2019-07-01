@@ -1,4 +1,5 @@
-﻿using HslCommunication.Core;
+﻿using HslCommunication.BasicFramework;
+using HslCommunication.Core;
 using HslCommunication.Serial;
 using System;
 using System.Collections.Generic;
@@ -192,7 +193,7 @@ namespace HslCommunication.Profinet.Omron
         /// <example>
         /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="ReadBool" title="ReadBool示例" />
         /// </example>
-        public OperateResult<bool[]> ReadBool( string address, ushort length )
+        public override OperateResult<bool[]> ReadBool( string address, ushort length )
         {
             // 获取指令
             var command = OmronFinsNetHelper.BuildReadCommand( address, length, true );
@@ -209,40 +210,7 @@ namespace HslCommunication.Profinet.Omron
             // 返回正确的数据信息
             return OperateResult.CreateSuccessResult( valid.Content.Select( m => m != 0x00 ? true : false ).ToArray( ) );
         }
-        
-        /// <summary>
-        /// 从欧姆龙PLC中批量读取位软元件，返回读取结果
-        /// </summary>
-        /// <param name="address">读取地址，具体的地址参考文档</param>
-        /// <returns>带成功标志的结果数据对象</returns>
-        /// <remarks>
-        /// 地址的格式请参照<see cref="ReadBool(string, ushort)"/>方法
-        /// </remarks>
-        /// <example>
-        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="ReadBool" title="ReadBool示例" />
-        /// </example>
-        public OperateResult<bool> ReadBool( string address )
-        {
-            OperateResult<bool[]> read = ReadBool( address, 1 );
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>( read );
 
-            return OperateResult.CreateSuccessResult( read.Content[0] );
-        }
-        
-        /// <summary>
-        /// 向PLC中位软元件写入bool数组，返回值说明，比如你写入D100,values[0]对应D100.0
-        /// </summary>
-        /// <param name="address">要写入的数据地址，具体的地址参考文档</param>
-        /// <param name="value">要写入的实际数据，长度为8的倍数</param>
-        /// <returns>返回写入结果</returns>
-        /// <example>
-        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="WriteBool" title="WriteBool示例" />
-        /// </example>
-        public OperateResult Write( string address, bool value )
-        {
-            return Write( address, new bool[] { value } );
-        }
-        
         /// <summary>
         /// 向PLC中位软元件写入bool数组，返回值说明，比如你写入D100,values[0]对应D100.0
         /// </summary>
@@ -252,7 +220,7 @@ namespace HslCommunication.Profinet.Omron
         /// <example>
         /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="WriteBool" title="WriteBool示例" />
         /// </example>
-        public OperateResult Write( string address, bool[] values )
+        public override OperateResult Write( string address, bool[] values )
         {
             // 获取指令
             var command = OmronFinsNetHelper.BuildWriteWordCommand( address, values.Select( m => m ? (byte)0x01 : (byte)0x00 ).ToArray( ), true ); ;
@@ -269,7 +237,20 @@ namespace HslCommunication.Profinet.Omron
             // 成功
             return OperateResult.CreateSuccessResult( );
         }
-        
+
+        #endregion
+
+        #region Object Override
+
+        /// <summary>
+        /// 返回表示当前对象的字符串
+        /// </summary>
+        /// <returns>字符串信息</returns>
+        public override string ToString( )
+        {
+            return $"OmronHostLink[{PortName}:{BaudRate}]";
+        }
+
         #endregion
 
         #region Build Command
@@ -286,19 +267,19 @@ namespace HslCommunication.Profinet.Omron
             byte[] buffer = new byte[18 + cmd.Length];
 
             buffer[ 0] = (byte)'@';
-            buffer[ 1] = Melsec.MelsecHelper.BuildBytesFromData( this.UnitNumber )[0];
-            buffer[ 2] = Melsec.MelsecHelper.BuildBytesFromData( this.UnitNumber )[1];
+            buffer[ 1] = SoftBasic.BuildAsciiBytesFrom( this.UnitNumber )[0];
+            buffer[ 2] = SoftBasic.BuildAsciiBytesFrom( this.UnitNumber )[1];
             buffer[ 3] = (byte)'F';
             buffer[ 4] = (byte)'A';
             buffer[ 5] = ResponseWaitTime;
-            buffer[ 6] = Melsec.MelsecHelper.BuildBytesFromData( this.ICF )[0];
-            buffer[ 7] = Melsec.MelsecHelper.BuildBytesFromData( this.ICF )[1];
-            buffer[ 8] = Melsec.MelsecHelper.BuildBytesFromData( this.DA2 )[0];
-            buffer[ 9] = Melsec.MelsecHelper.BuildBytesFromData( this.DA2 )[1];
-            buffer[10] = Melsec.MelsecHelper.BuildBytesFromData( this.SA2 )[0];
-            buffer[11] = Melsec.MelsecHelper.BuildBytesFromData( this.SA2 )[1];
-            buffer[12] = Melsec.MelsecHelper.BuildBytesFromData( this.SID )[0];
-            buffer[13] = Melsec.MelsecHelper.BuildBytesFromData( this.SID )[1];
+            buffer[ 6] = SoftBasic.BuildAsciiBytesFrom( this.ICF )[0];
+            buffer[ 7] = SoftBasic.BuildAsciiBytesFrom( this.ICF )[1];
+            buffer[ 8] = SoftBasic.BuildAsciiBytesFrom( this.DA2 )[0];
+            buffer[ 9] = SoftBasic.BuildAsciiBytesFrom( this.DA2 )[1];
+            buffer[10] = SoftBasic.BuildAsciiBytesFrom( this.SA2 )[0];
+            buffer[11] = SoftBasic.BuildAsciiBytesFrom( this.SA2 )[1];
+            buffer[12] = SoftBasic.BuildAsciiBytesFrom( this.SID )[0];
+            buffer[13] = SoftBasic.BuildAsciiBytesFrom( this.SID )[1];
             buffer[buffer.Length - 2] = (byte)'*';
             buffer[buffer.Length - 1] = 0x0D;
             cmd.CopyTo( buffer, 14 );
@@ -308,8 +289,8 @@ namespace HslCommunication.Profinet.Omron
             {
                 tmp = (tmp ^ buffer[i]);
             }
-            buffer[buffer.Length - 4] = Melsec.MelsecHelper.BuildBytesFromData( (byte)tmp )[0];
-            buffer[buffer.Length - 3] = Melsec.MelsecHelper.BuildBytesFromData( (byte)tmp )[1];
+            buffer[buffer.Length - 4] = SoftBasic.BuildAsciiBytesFrom( (byte)tmp )[0];
+            buffer[buffer.Length - 3] = SoftBasic.BuildAsciiBytesFrom( (byte)tmp )[1];
             string output = Encoding.ASCII.GetString( buffer );
             Console.WriteLine( output );
             return buffer;

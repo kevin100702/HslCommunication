@@ -26,17 +26,6 @@ namespace HslCommunicationDemo
 
         private OmronFinsNet omronFinsNet = null;
 
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
-        {
-            try
-            {
-                System.Diagnostics.Process.Start( linkLabel1.Text );
-            }
-            catch (Exception ex) 
-            {
-                MessageBox.Show( ex.Message );
-            }
-        }
 
         private void FormSiemens_Load( object sender, EventArgs e )
         {
@@ -45,13 +34,6 @@ namespace HslCommunicationDemo
             panel2.Enabled = false;
 
             Language( Program.Language );
-
-            if (!Program.ShowAuthorInfomation)
-            {
-                label2.Visible = false;
-                linkLabel1.Visible = false;
-                label20.Visible = false;
-            }
         }
 
 
@@ -60,10 +42,6 @@ namespace HslCommunicationDemo
             if (language == 2)
             {
                 Text = "Omron Read PLC Demo";
-                label2.Text = "Blogs:";
-                label4.Text = "Protocols:";
-                label20.Text = "Author:Richard Hu";
-                label5.Text = "Fins Tcp";
                 label24.Text = "Unit Num";
                 label23.Text = "PC Net Num";
 
@@ -107,6 +85,7 @@ namespace HslCommunicationDemo
                 button16.Text = "w-float";
                 button15.Text = "w-double";
                 button14.Text = "w-string";
+                checkBox1.Text = "change SA1 value after read failed";
 
                 groupBox1.Text = "Single Data Read test";
                 groupBox2.Text = "Single Data Write test";
@@ -158,6 +137,7 @@ namespace HslCommunicationDemo
             omronFinsNet.SA1 = SA1;
             omronFinsNet.DA2 = DA2;
             omronFinsNet.ByteTransform.DataFormat = (HslCommunication.Core.DataFormat)comboBox1.SelectedItem;
+            omronFinsNet.IsChangeSA1AfterReadFailed = checkBox1.Checked;
 
             // OperateResult connect = OperateResult.CreateSuccessResult( ); 
             OperateResult connect = omronFinsNet.ConnectServer( );

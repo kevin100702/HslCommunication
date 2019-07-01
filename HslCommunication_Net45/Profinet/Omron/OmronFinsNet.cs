@@ -15,6 +15,8 @@ namespace HslCommunication.Profinet.Omron
     /// </summary>
     /// <remarks>
     /// <note type="important">实例化之后，使用之前，需要初始化三个参数信息，具体见三个参数的说明：<see cref="SA1"/>，<see cref="DA1"/>，<see cref="DA2"/></note>
+    /// <note type="important">第二个需要注意的是，当网络异常掉线时，无法立即连接上PLC，PLC对于当前的节点进行拒绝，如果想要支持在断线后的快速连接，就需要将
+    /// <seealso cref="IsChangeSA1AfterReadFailed"/>设置为<c>True</c>，详细的可以参考 <seealso cref="IsChangeSA1AfterReadFailed"/></note>
     /// <br />
     /// <note type="warning">如果在测试的时候报错误码64，经网友 上海-Lex 指点，是因为PLC中产生了报警，如伺服报警，模块错误等产生的，但是数据还是能正常读到的，屏蔽64报警或清除plc错误可解决</note>
     /// 地址支持的列表如下：
@@ -73,6 +75,15 @@ namespace HslCommunication.Profinet.Omron
     ///     <term>√</term>
     ///     <term></term>
     ///   </item>
+    ///   <item>
+    ///     <term>EM Area</term>
+    ///     <term>E</term>
+    ///     <term>E0.0,EF.200,E10.100</term>
+    ///     <term>10</term>
+    ///     <term>√</term>
+    ///     <term>√</term>
+    ///     <term></term>
+    ///   </item>
     /// </list>
     /// </remarks>
     /// <example>
@@ -106,7 +117,7 @@ namespace HslCommunication.Profinet.Omron
         }
 
         #endregion
-        
+
         #region IpAddress Override
 
         /// <summary>
@@ -130,6 +141,7 @@ namespace HslCommunication.Profinet.Omron
         /// 信息控制字段，默认0x80
         /// </summary>
         public byte ICF { get; set; } = 0x80;
+
         /// <summary>
         /// 系统使用的内部信息
         /// </summary>
@@ -193,6 +205,11 @@ namespace HslCommunication.Profinet.Omron
         /// 设备的标识号
         /// </summary>
         public byte SID { get; set; } = 0x00;
+
+        /// <summary>
+        /// 如果设置为<c>True</c>，当数据读取失败的时候，会自动变更当前的SA1值，会选择自动增加，但不会和DA1一致，本值需要在对象实例化之后立即设置。
+        /// </summary>
+        public bool IsChangeSA1AfterReadFailed { get; set; }
         
         #endregion
         
@@ -288,9 +305,29 @@ namespace HslCommunication.Profinet.Omron
             return OperateResult.CreateSuccessResult( ) ;
         }
 
+        /// <summary>
+        /// 和服务器交互完成的时候调用的方法，无论是成功或是失败，都将会调用，具体的操作需要重写实现
+        /// </summary>
+        /// <param name="read">读取结果</param>
+        protected override void ExtraAfterReadFromCoreServer( OperateResult read )
+        {
+            base.ExtraAfterReadFromCoreServer( read );
+            if (!read.IsSuccess)
+            {
+                if (IsChangeSA1AfterReadFailed)
+                {
+                    // when read failed, changed the SA1 value
+                    SA1++;
+                    if (SA1 > 253) SA1 = 1;
+                    if (SA1 == DA1) SA1++;
+                    if (SA1 > 253) SA1 = 1;
+                }
+            }
+        }
+
         #endregion
 
-        #region Read Support
+        #region Read Write Override
 
         /// <summary>
         /// 从欧姆龙PLC中读取想要的数据，返回读取结果，读取单位为字
@@ -322,61 +359,6 @@ namespace HslCommunication.Profinet.Omron
             return OperateResult.CreateSuccessResult( valid.Content );
         }
 
-
-
-        /// <summary>
-        /// 从欧姆龙PLC中批量读取位软元件，返回读取结果
-        /// </summary>
-        /// <param name="address">读取地址，格式为"D100","C100","W100","H100","A100"</param>
-        /// <param name="length">读取的长度</param>
-        /// <returns>带成功标志的结果数据对象</returns>
-        /// <example>
-        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="ReadBool" title="ReadBool示例" />
-        /// </example>
-        public OperateResult<bool[]> ReadBool( string address, ushort length )
-        {
-            // 获取指令
-            var command = BuildReadCommand( address, length, true );
-            if (!command.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( command );
-
-            // 核心数据交互
-            OperateResult<byte[]> read = ReadFromCoreServer( command.Content );
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( read );
-
-            // 数据有效性分析
-            OperateResult<byte[]> valid = OmronFinsNetHelper.ResponseValidAnalysis( read.Content, true );
-            if (!valid.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( valid );
-
-            // 返回正确的数据信息
-            return OperateResult.CreateSuccessResult( valid.Content.Select( m => m != 0x00 ? true : false ).ToArray( ) );
-        }
-
-
-        /// <summary>
-        /// 从欧姆龙PLC中批量读取位软元件，返回读取结果
-        /// </summary>
-        /// <param name="address">读取地址，格式为"D100.0","C100.15","W100.7","H100.4","A100.9"</param>
-        /// <returns>带成功标志的结果数据对象</returns>
-        /// <remarks>
-        /// 地址的格式请参照<see cref="ReadBool(string, ushort)"/>方法
-        /// </remarks>
-        /// <example>
-        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="ReadBool" title="ReadBool示例" />
-        /// </example>
-        public OperateResult<bool> ReadBool( string address )
-        {
-            OperateResult<bool[]> read = ReadBool( address, 1 );
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>( read );
-
-            return OperateResult.CreateSuccessResult( read.Content[0] );
-        }
-
-
-        #endregion
-
-        #region Write Base
-
-
         /// <summary>
         /// 向PLC写入数据，数据格式为原始的字节类型
         /// </summary>
@@ -406,26 +388,37 @@ namespace HslCommunication.Profinet.Omron
             // 成功
             return OperateResult.CreateSuccessResult( ) ;
         }
-        
 
         #endregion
-        
-        #region Write bool[]
-        
-        /// <summary>
-        /// 向PLC中位软元件写入bool数组，返回值说明，比如你写入D100,values[0]对应D100.0
-        /// </summary>
-        /// <param name="address">要写入的数据地址</param>
-        /// <param name="value">要写入的实际数据，长度为8的倍数</param>
-        /// <returns>返回写入结果</returns>
-        /// <example>
-        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="WriteBool" title="WriteBool示例" />
-        /// </example>
-        public OperateResult Write( string address, bool value )
-        {
-            return Write( address, new bool[] { value } );
-        }
 
+        #region Bool Read Write
+
+        /// <summary>
+        /// 从欧姆龙PLC中批量读取位软元件，返回读取结果
+        /// </summary>
+        /// <param name="address">读取地址，格式为"D100","C100","W100","H100","A100"</param>
+        /// <param name="length">读取的长度</param>
+        /// <returns>带成功标志的结果数据对象</returns>
+        /// <example>
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="ReadBool" title="ReadBool示例" />
+        /// </example>
+        public override OperateResult<bool[]> ReadBool( string address, ushort length )
+        {
+            // 获取指令
+            var command = BuildReadCommand( address, length, true );
+            if (!command.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( command );
+
+            // 核心数据交互
+            OperateResult<byte[]> read = ReadFromCoreServer( command.Content );
+            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( read );
+
+            // 数据有效性分析
+            OperateResult<byte[]> valid = OmronFinsNetHelper.ResponseValidAnalysis( read.Content, true );
+            if (!valid.IsSuccess) return OperateResult.CreateFailedResult<bool[]>( valid );
+
+            // 返回正确的数据信息
+            return OperateResult.CreateSuccessResult( valid.Content.Select( m => m != 0x00 ? true : false ).ToArray( ) );
+        }
 
         /// <summary>
         /// 向PLC中位软元件写入bool数组，返回值说明，比如你写入D100,values[0]对应D100.0
@@ -436,7 +429,7 @@ namespace HslCommunication.Profinet.Omron
         /// <example>
         /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Profinet\OmronFinsNet.cs" region="WriteBool" title="WriteBool示例" />
         /// </example>
-        public OperateResult Write( string address, bool[] values )
+        public override OperateResult Write( string address, bool[] values )
         {
             // 获取指令
             var command = BuildWriteCommand( address, values.Select( m => m ? (byte)0x01 : (byte)0x00 ).ToArray( ), true );
@@ -454,9 +447,8 @@ namespace HslCommunication.Profinet.Omron
             return OperateResult.CreateSuccessResult( );
         }
 
-
         #endregion
-        
+
         #region Hand Single
 
         // 握手信号
@@ -469,7 +461,6 @@ namespace HslCommunication.Profinet.Omron
             0x00, 0x00, 0x00, 0x00, // 错误码
             0x00, 0x00, 0x00, 0x01  // 节点号
         };
-
 
         #endregion
 
@@ -485,6 +476,5 @@ namespace HslCommunication.Profinet.Omron
         }
 
         #endregion
-
     }
 }

@@ -21,32 +21,13 @@ namespace HslCommunicationDemo
         }
 
 
-        private KukaAvarProxyNet melsec_net = null;
-
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
-        {
-            try
-            {
-                System.Diagnostics.Process.Start( linkLabel1.Text );
-            }
-            catch (Exception ex) 
-            {
-                MessageBox.Show( ex.Message );
-            }
-        }
+        private KukaAvarProxyNet kuka = null;
 
         private void FormSiemens_Load( object sender, EventArgs e )
         {
             panel2.Enabled = false;
             
             Language( Program.Language );
-
-            if (!Program.ShowAuthorInfomation)
-            {
-                label2.Visible = false;
-                linkLabel1.Visible = false;
-                label20.Visible = false;
-            }
         }
 
         private void Language( int language )
@@ -54,10 +35,6 @@ namespace HslCommunicationDemo
             if (language == 2)
             {
                 Text = "Kuka Robot Demo";
-                label2.Text = "Blogs:";
-                label4.Text = "Protocols:";
-                label20.Text = "Author:Richard Hu";
-                label5.Text = "KUKAVARPROXY Protocol";
 
                 label1.Text = "Ip:";
                 label3.Text = "Port:";
@@ -141,13 +118,12 @@ namespace HslCommunicationDemo
                 return;
             }
             
-            melsec_net?.ConnectClose( );
-            melsec_net = new KukaAvarProxyNet( textBox1.Text, port );
-            melsec_net.ConnectClose( );
+            kuka?.ConnectClose( );
+            kuka = new KukaAvarProxyNet( textBox1.Text, port );
 
             try
             {
-                OperateResult connect = melsec_net.ConnectServer( );
+                OperateResult connect = kuka.ConnectServer( );
                 if (connect.IsSuccess)
                 {
                     MessageBox.Show( "连接成功！" );
@@ -169,7 +145,7 @@ namespace HslCommunicationDemo
         private void button2_Click( object sender, EventArgs e )
         {
             // 断开连接
-            melsec_net.ConnectClose( );
+            kuka.ConnectClose( );
             button2.Enabled = false;
             button1.Enabled = true;
             panel2.Enabled = false;
@@ -189,7 +165,7 @@ namespace HslCommunicationDemo
         private void button_read_string_Click( object sender, EventArgs e )
         {
             // 读取字符串
-            readResultRender( melsec_net.ReadString( textBox3.Text ), textBox3.Text, textBox4 );
+            readResultRender( kuka.ReadString( textBox3.Text ), textBox3.Text, textBox4 );
         }
 
 
@@ -203,7 +179,7 @@ namespace HslCommunicationDemo
             // string写入
             try
             {
-                writeResultRender( melsec_net.Write( textBox8.Text, textBox7.Text ), textBox8.Text );
+                writeResultRender( kuka.Write( textBox8.Text, textBox7.Text ), textBox8.Text );
             }
             catch (Exception ex)
             {

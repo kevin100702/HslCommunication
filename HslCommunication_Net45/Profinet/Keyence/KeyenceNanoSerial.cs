@@ -322,7 +322,7 @@ namespace HslCommunication.Profinet.Keyence
         /// <param name="address">地址信息</param>
         /// <param name="length">数组长度</param>
         /// <returns>带成功标志的结果数据对象</returns>
-        public OperateResult<bool[]> ReadBool(string address, ushort length)
+        public override OperateResult<bool[]> ReadBool(string address, ushort length)
         {
             var strBuffer = Encoding.Default.GetString(Read(address, length).Content).Split(' ');
          
@@ -332,19 +332,6 @@ namespace HslCommunication.Profinet.Keyence
                 result[i] = strBuffer[i] == "1" ? true : false;
             }
             return OperateResult.CreateSuccessResult(result);
-        }
-
-        /// <summary>
-        /// 读取单个Bool值
-        /// </summary>
-        /// <param name="address">地址信息</param>
-        /// <returns>带成功标志的结果数据对象</returns>
-        public OperateResult<bool> ReadBool(string address)
-        {
-            OperateResult<bool[]> read = ReadBool(address, 1);
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>(read);
-
-            return OperateResult.CreateSuccessResult<bool>(read.Content[0]);
         }
 
         #endregion
@@ -380,7 +367,7 @@ namespace HslCommunication.Profinet.Keyence
         /// <param name="address">地址信息</param>
         /// <param name="value">是否为通</param>
         /// <returns>是否写入成功的结果对象</returns>
-        public OperateResult Write(string address, bool value)
+        public override OperateResult Write(string address, bool value)
         {
             //value=true时:指令尾部命令为" 1 1";value=false:指令尾部命令为" 1 0";
             var byteTemp = value ? new byte[] {0x20, 0x31,0x20,0x31 } : new byte[] { 0x20, 0x31, 0x20, 0x30 };
@@ -431,6 +418,19 @@ namespace HslCommunication.Profinet.Keyence
 
         private byte[] _buildConnectCmd = new byte[3] { 0x43, 0x52, 0x0d };     // 建立通讯连接{CR/r}
         private byte[] _writeOkReturn = new byte[] { 0x4f, 0x4b, 0x0d, 0x0a };  // 写入数据成功返回指令
+
+        #endregion
+
+        #region Object Override
+
+        /// <summary>
+        /// 返回表示当前对象的字符串
+        /// </summary>
+        /// <returns>字符串信息</returns>
+        public override string ToString( )
+        {
+            return $"KeyenceNanoSerial[{PortName}:{BaudRate}]";
+        }
 
         #endregion
 

@@ -16,7 +16,7 @@ namespace HslCommunication.Core.Net
     /// <typeparam name="TNetMessage">指定了消息的解析规则</typeparam>
     /// <typeparam name="TTransform">指定了数据转换的规则</typeparam>
     /// <remarks>需要继承实现采用使用。</remarks>
-    public class NetworkDeviceBase<TNetMessage, TTransform> : NetworkDoubleBase<TNetMessage, TTransform> , IReadWriteNet where TNetMessage : INetMessage, new() where TTransform : IByteTransform, new()
+    public class NetworkDeviceBase<TNetMessage, TTransform> : NetworkDoubleBase<TNetMessage, TTransform>, IReadWriteNet where TNetMessage : INetMessage, new() where TTransform : IByteTransform, new()
     {
         #region Virtual Method
 
@@ -129,8 +129,46 @@ namespace HslCommunication.Core.Net
 
         #endregion
 
-        #region Read Support
+        #region Reflection Read
 
+        /// <summary>
+        /// 从设备里读取支持Hsl特性的数据内容，该特性为<see cref="HslDeviceAddressAttribute"/>，详细参考论坛的操作说明。
+        /// </summary>
+        /// <typeparam name="T">自定义的数据类型对象</typeparam>
+        /// <returns>包含是否成功的结果对象</returns>
+        /// <example>
+        /// 此处演示西门子的读取示例，先定义一个类，重点是将需要读取的数据，写入到属性的特性中去。
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ObjectDefineExample" title="特性实现示例" />
+        /// 接下来就可以实现数据的读取了
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ReadObjectExample" title="ReadObject示例" />
+        /// </example>
+        public OperateResult<T> Read<T>( ) where T : class, new()
+        {
+            return HslReflectionHelper.Read<T>( this );
+        }
+
+        /// <summary>
+        /// 从设备里读取支持Hsl特性的数据内容，该特性为<see cref="HslDeviceAddressAttribute"/>，详细参考论坛的操作说明。
+        /// </summary>
+        /// <typeparam name="T">自定义的数据类型对象</typeparam>
+        /// <returns>包含是否成功的结果对象</returns>
+        /// <example>
+        /// 此处演示西门子的读取示例，先定义一个类，重点是将需要读取的数据，写入到属性的特性中去。
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ObjectDefineExample" title="特性实现示例" />
+        /// 接下来就可以实现数据的写入了
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteObjectExample" title="WriteObject示例" />
+        /// </example>
+        /// <exception cref="ArgumentNullException"></exception>
+        public OperateResult Write<T>( T data ) where T : class, new()
+        {
+            if (data == null) throw new ArgumentNullException( nameof( data ) );
+
+            return HslReflectionHelper.Write<T>( data, this );
+        }
+
+        #endregion
+
+        #region Read Support
 
         /// <summary>
         /// 读取设备的short类型的数据
@@ -145,7 +183,6 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromArray( ReadInt16( address, 1 ) );
         }
-
 
         /// <summary>
         /// 读取设备的short类型的数组
@@ -207,7 +244,7 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromArray( ReadInt32( address, 1 ) );
         }
-        
+
         /// <summary>
         /// 读取设备的int类型的数组
         /// </summary>
@@ -222,7 +259,7 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromBytes( Read( address, (ushort)(length * WordLength * 2) ), m => ByteTransform.TransInt32( m, 0, length ) );
         }
-        
+
         /// <summary>
         /// 读取设备的uint类型的数据
         /// </summary>
@@ -236,7 +273,7 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromArray( ReadUInt32( address, 1 ) );
         }
-        
+
         /// <summary>
         /// 读取设备的uint类型的数组
         /// </summary>
@@ -339,7 +376,7 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromBytes( Read( address, (ushort)(length * WordLength * 4) ), m => ByteTransform.TransUInt64( m, 0, length ) );
         }
-        
+
         /// <summary>
         /// 读取设备的double类型的数据
         /// </summary>
@@ -383,12 +420,123 @@ namespace HslCommunication.Core.Net
         {
             return ByteTransformHelper.GetResultFromBytes( Read( address, length ), m => ByteTransform.TransString( m, 0, m.Length, Encoding.ASCII ) );
         }
-        
+
+        /// <summary>
+        /// 读取设备的字符串数据，编码为指定的编码信息
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="length">地址长度</param>
+        /// <param name="encoding">编码机制</param>
+        /// <returns>带成功标志的结果数据对象</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ReadString" title="String类型示例" />
+        /// </example>
+        public OperateResult<string> ReadString( string address, ushort length, Encoding encoding )
+        {
+            return ByteTransformHelper.GetResultFromBytes( Read( address, length ), m => ByteTransform.TransString( m, 0, m.Length, encoding ) );
+        }
+
+        #endregion
+
+        #region Bool Support
+
+        // Bool类型的读写，不一定所有的设备都实现，比如西门子，就没有实现bool[]的读写，Siemens的fetch/write没有实现bool操作
+
+        /// <summary>
+        /// 批量读取底层的数据信息，需要指定地址和长度，具体的结果取决于实现
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="length">数据长度</param>
+        /// <returns>带有成功标识的bool[]数组</returns>
+        public virtual OperateResult<bool[]> ReadBool( string address, ushort length )
+        {
+            return new OperateResult<bool[]>( StringResources.Language.NotSupportedFunction );
+        }
+
+        /// <summary>
+        /// 读取底层的bool数据信息，具体的结果取决于实现
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <returns>带有成功标识的bool数组</returns>
+        public virtual OperateResult<bool> ReadBool( string address )
+        {
+            OperateResult<bool[]> read = ReadBool( address, 1 );
+            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>( read );
+
+            return OperateResult.CreateSuccessResult( read.Content[0] );
+        }
+
+        /// <summary>
+        /// 写入bool数组数据
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="value">写入值</param>
+        /// <returns>带有成功标识的结果类对象</returns>
+        public virtual OperateResult Write( string address, bool[] value )
+        {
+            return new OperateResult( StringResources.Language.NotSupportedFunction );
+        }
+
+        /// <summary>
+        /// 写入bool数据
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="value">写入值</param>
+        /// <returns>带有成功标识的结果类对象</returns>
+        public virtual OperateResult Write( string address, bool value )
+        {
+            return Write( address, new bool[] { value } );
+        }
+
         #endregion
 
         #region Read Write Async Support
 
 #if !NET35
+
+        /// <summary>
+        /// 批量读取底层的数据信息，需要指定地址和长度，具体的结果取决于实现
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="length">数据长度</param>
+        /// <returns>带有成功标识的bool[]数组</returns>
+        public Task<OperateResult<bool[]>> ReadBoolAsync( string address, ushort length )
+        {
+            return Task.Run( ( ) => new OperateResult<bool[]>( StringResources.Language.NotSupportedFunction ) );
+        }
+
+        /// <summary>
+        /// 读取底层的bool数据信息，具体的结果取决于实现
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <returns>带有成功标识的bool数组</returns>
+        public Task<OperateResult<bool>> ReadBoolAsync( string address )
+        {
+            return Task.Run( ( ) => new OperateResult<bool>( StringResources.Language.NotSupportedFunction ) );
+        }
+
+        /// <summary>
+        /// 写入bool数组数据
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="value">写入值</param>
+        /// <returns>带有成功标识的结果类对象</returns>
+        public Task<OperateResult> WriteAsync( string address, bool[] value )
+        {
+            return Task.Run( ( ) => new OperateResult( StringResources.Language.NotSupportedFunction ) );
+        }
+
+        /// <summary>
+        /// 写入bool数据
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="value">写入值</param>
+        /// <returns>带有成功标识的结果类对象</returns>
+        public Task<OperateResult> WriteAsync( string address, bool value )
+        {
+            return Task.Run( ( ) => new OperateResult( StringResources.Language.NotSupportedFunction ) );
+        }
 
         /// <summary>
         /// 使用异步的操作从原始的设备中读取数据信息
@@ -649,6 +797,21 @@ namespace HslCommunication.Core.Net
             return Task.Run( ( ) => ReadString( address, length ) );
         }
 
+        /// <summary>
+        /// 读取设备的字符串数据，编码为指定的编码信息
+        /// </summary>
+        /// <param name="address">起始地址</param>
+        /// <param name="length">地址长度</param>
+        /// <param name="encoding">编码机制</param>
+        /// <returns>带成功标志的结果数据对象</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ReadStringAsync" title="String类型示例" />
+        /// </example>
+        public Task<OperateResult<string>> ReadStringAsync( string address, ushort length, Encoding encoding )
+        {
+            return Task.Run( ( ) => ReadString( address, length, encoding ) );
+        }
 
         /// <summary>
         /// 异步将原始数据写入设备
@@ -922,6 +1085,22 @@ namespace HslCommunication.Core.Net
         }
 
         /// <summary>
+        /// 异步向设备中写入字符串，使用指定的字符编码
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="value">字符串数据</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>是否写入成功的结果对象</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteStringAsync" title="String类型示例" />
+        /// </example>
+        public Task<OperateResult> WriteAsync( string address, string value, Encoding encoding )
+        {
+            return Task.Run( ( ) => Write( address, value, encoding ) );
+        }
+
+        /// <summary>
         /// 异步向设备中写入指定长度的字符串,超出截断，不够补0，编码格式为ASCII
         /// </summary>
         /// <param name="address">数据地址</param>
@@ -935,6 +1114,23 @@ namespace HslCommunication.Core.Net
         public Task<OperateResult> WriteAsync( string address, string value, int length )
         {
             return Task.Run( ( ) => Write( address, value, length ) );
+        }
+
+        /// <summary>
+        /// 异步向设备中写入指定长度的字符串,超出截断，不够补0，指定的编码格式
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="value">字符串数据</param>
+        /// <param name="length">指定的字符串长度，必须大于0</param>
+        /// <param name="encoding">指定的编码格式</param>
+        /// <returns>是否写入成功的结果对象 -> Whether to write a successful result object</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteString2Async" title="String类型示例" />
+        /// </example>
+        public Task<OperateResult> WriteAsync( string address, string value, int length, Encoding encoding )
+        {
+            return Task.Run( ( ) => Write( address, value, length, encoding ) );
         }
 
         /// <summary>
@@ -1001,6 +1197,40 @@ namespace HslCommunication.Core.Net
             return Task.Run( ( ) => WriteCustomer( address, data ) );
         }
 
+        /// <summary>
+        /// 异步从设备里读取支持Hsl特性的数据内容，该特性为<see cref="HslDeviceAddressAttribute"/>，详细参考论坛的操作说明。
+        /// </summary>
+        /// <typeparam name="T">自定义的数据类型对象</typeparam>
+        /// <returns>包含是否成功的结果对象</returns>
+        /// <example>
+        /// 此处演示西门子的读取示例，先定义一个类，重点是将需要读取的数据，写入到属性的特性中去。
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ObjectDefineExample" title="特性实现示例" />
+        /// 接下来就可以实现数据的读取了
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ReadObjectAsyncExample" title="ReadObjectAsync示例" />
+        /// </example>
+        public Task<OperateResult<T>> ReadAsync<T>( ) where T : class, new()
+        {
+            return Task.Run( ( ) => HslReflectionHelper.Read<T>( this ) );
+        }
+
+        /// <summary>
+        /// 异步从设备里读取支持Hsl特性的数据内容，该特性为<see cref="HslDeviceAddressAttribute"/>，详细参考论坛的操作说明。
+        /// </summary>
+        /// <typeparam name="T">自定义的数据类型对象</typeparam>
+        /// <returns>包含是否成功的结果对象</returns>
+        /// <example>
+        /// 此处演示西门子的读取示例，先定义一个类，重点是将需要读取的数据，写入到属性的特性中去。
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="ObjectDefineExample" title="特性实现示例" />
+        /// 接下来就可以实现数据的写入了
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteObjectAsyncExample" title="WriteObjectAsync示例" />
+        /// </example>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Task<OperateResult> WriteAsync<T>( T data ) where T : class, new()
+        {
+            if (data == null) throw new ArgumentNullException( nameof( data ) );
+
+            return Task.Run( ( ) => HslReflectionHelper.Write<T>( data, this ) );
+        }
 #endif
 
         #endregion
@@ -1295,8 +1525,24 @@ namespace HslCommunication.Core.Net
         /// </example>
         public virtual OperateResult Write( string address, string value )
         {
-            byte[] temp = ByteTransform.TransByte( value, Encoding.ASCII );
-            if(WordLength == 1) temp = SoftBasic.ArrayExpandToLengthEven( temp );
+            return Write( address, value, Encoding.ASCII );
+        }
+
+        /// <summary>
+        /// 向设备中写入指定编码的字符串
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="value">字符串数据</param>
+        /// <param name="encoding">字节编码</param>
+        /// <returns>是否写入成功的结果对象</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteString" title="String类型示例" />
+        /// </example>
+        public virtual OperateResult Write( string address, string value, Encoding encoding )
+        {
+            byte[] temp = ByteTransform.TransByte( value, encoding );
+            if (WordLength == 1) temp = SoftBasic.ArrayExpandToLengthEven( temp );
             return Write( address, temp );
         }
 
@@ -1313,7 +1559,24 @@ namespace HslCommunication.Core.Net
         /// </example>
         public virtual OperateResult Write( string address, string value, int length )
         {
-            byte[] temp = ByteTransform.TransByte( value, Encoding.ASCII );
+            return Write( address, value, length, Encoding.ASCII );
+        }
+
+        /// <summary>
+        /// 向设备中写入指定长度并且指定编码的字符串,超出截断，不够补0
+        /// </summary>
+        /// <param name="address">数据地址</param>
+        /// <param name="value">字符串数据</param>
+        /// <param name="length">指定的长度，按照转换后的字节计算</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>是否写入成功的结果对象 -> Whether to write a successful result object</returns>
+        /// <example>
+        /// 以下为三菱的连接对象示例，其他的设备读写情况参照下面的代码：
+        /// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\Core\NetworkDeviceBase.cs" region="WriteString2" title="String类型示例" />
+        /// </example>
+        public virtual OperateResult Write( string address, string value, int length, Encoding encoding )
+        {
+            byte[] temp = ByteTransform.TransByte( value, encoding );
             if (WordLength == 1) temp = SoftBasic.ArrayExpandToLengthEven( temp );
             temp = SoftBasic.ArrayExpandToLength( temp, length );
             return Write( address, temp );
@@ -1355,7 +1618,7 @@ namespace HslCommunication.Core.Net
         /// <returns>字符串数据</returns>
         public override string ToString( )
         {
-            return $"NetworkDeviceBase<{typeof(TNetMessage)}, {typeof(TTransform)}>[{IpAddress}:{Port}]";
+            return $"NetworkDeviceBase<{typeof( TNetMessage )}, {typeof( TTransform )}>[{IpAddress}:{Port}]";
         }
 
         #endregion

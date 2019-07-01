@@ -678,7 +678,7 @@ namespace HslCommunication
     ///             <item>修复文件引擎在上传文件时意外失败，服务器仍然识别为成功的bug。</item>
     ///         </list>
     ///     </revision>
-    ///     <revision date="2019-4-4" version="6.1.0" author="Richard.Hu">
+    ///     <revision date="2019-4-17" version="6.1.0" author="Richard.Hu">
     ///         <list type="bullet">
     ///             <item>修复日志存储自身异常时，时间没有初始化的bug。</item>
     ///             <item>NetworkBase: 新增UseSynchronousNet属性，默认为true，通过同步的网络进行读写数据，异步手动设置为false。</item>
@@ -687,6 +687,106 @@ namespace HslCommunication
     ///             <item>其他的代码优化。</item>
     ///             <item>发布一个基于xamarin的安卓测试demo。</item>
     ///             <item>发布官方论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-4-24" version="6.1.1" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复基恩士MC协议读取D区数据索引不能大于100000的bug。</item>
+    ///             <item>修复基恩士串口协议读写bool数据的异常bug。</item>
+    ///             <item>修复数据推送服务器在客户端异常断开时的奔溃bug，界面卡死bug。</item>
+    ///             <item>SoftNumericalOrder类新增数据重置和，最大数限制 。</item>
+    ///             <item>ModbusTcp客户端公开属性SoftIncrementCount，可以强制消息号不变，或是最大值。</item>
+    ///             <item>NetworkBase: 异步的方法针对Net451及standard版本重写。</item>
+    ///             <term>modbus服务器的方法ReadFromModbusCore( byte[] modbusCore )设置为虚方法，可以继承重写，实现自定义返回。</term>
+    ///             <item>串口基类serialbase的初始化方法新增多个重载方法，方便VB和labview调用。</item>
+    ///             <item>NetworkBase: 默认的机制任然使用异步实现，UseSynchronousNet=false。</item>
+    ///             <item>发布官方论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-4-25" version="6.1.2" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>紧急修复在NET451和Core里的异步读取的bug。</item>
+    ///             <item>紧急修复PushNetServer的发送回调bug。</item>
+    ///             <item>发布官方论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-5-6" version="6.2.0" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>SoftBuffer缓存类支持bool数据的读写，bool数组的读写，并修复double读写的bug。</item>
+    ///             <item>Modbus虚拟服务器代码重构实现，继承自NetworkDataServerBase类。</item>
+    ///             <item>新增韩国品牌LS的Fast Enet协议</item>
+    ///             <item>新增韩国品牌LS的Cnet协议</item>
+    ///             <item>新增三菱mc协议的虚拟服务器，仅支持二进制格式的机制。</item>
+    ///             <item>LogNet支持写入任意的字符串格式。</item>
+    ///             <item>其他的注释添加及代码优化。</item>
+    ///             <item>发布官方论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-5-9" version="6.2.1" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复三菱读写PLC位时的bug。</item>
+    ///             <item>修复Modbus读写线圈及离散的变量bug。</item>
+    ///             <item>强烈建议更新，不能使用6.2.0版本！或是回退更低的版本。</item>
+    ///             <item>有问题先上论坛： http://bbs.hslcommunication.cn/ </item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-5-10" version="6.2.2" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>修复上个版本modbus的致命bug，已通过单元测试。</item>
+    ///             <item>新增松下的mc协议，demo已经新增，等待测试。</item>
+    ///             <item>github源代码里的支持的型号需要大家一起完善。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-5-31" version="6.2.3" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>Ls的Fast Enet协议问题修复，感谢来自埃及朋友。</item>
+    ///             <item>Ls的CEnet协议问题修复，感谢来自埃及朋友。</item>
+    ///             <item>Ls新增虚拟的PLC服务器，感谢来自埃及朋友。</item>
+    ///             <item>改进了机器码获取的方法，获取实际的硬盘串号。</item>
+    ///             <item>日志的等级为None的情况，不再格式化字符串，原生写入日志。</item>
+    ///             <item>IReadWriteNet接口测试西门子的写入，没有问题。</item>
+    ///             <term>三菱及松下，基恩士的地址都调整为最大20亿长度，实际取决于PLC本身。</term>
+    ///             <item>松下MC协议修复LD数据库的读写bug。</item>
+    ///             <item>Redis的DEMO界面新增删除key功能。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-6-3" version="6.2.4" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>Redis新增读取服务器的时间接口，可用于客户端的时间同步。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-6-6" version="6.2.5" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>西门子的SiemensS7Net类当读取PLC配置长度的DB块数据时，将提示错误信息。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-6-22 " version="7.0.0" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>新增安川机器人通信类，未测试。</item>
+    ///             <item>西门子的多地址读取的长度不再限制为19个，而是无限制个。</item>
+    ///             <item>NetworkDoubleBase: 实现IDispose接口，方便手动释放资源。</item>
+    ///             <item>SerialBase: 实现IDispose接口，方便手动释放资源。</item>
+    ///             <item>NetSimplifyClient:新增一个async...await方法。</item>
+    ///             <item>NetSimplifyClient:新增读取字符串数组。</item>
+    ///             <item>ModbusServer:新增支持账户密码登录，用于构建安全的服务器，仅支持hsl组件的modbus安全访问。</item>
+    ///             <item>NetSimplifyServer:新增支持账户密码登录。</item>
+    ///             <item>新增永宏PLC的编程口协议。</item>
+    ///             <item>新增富士PLC的串口通信，未测试。</item>
+    ///             <item>新增欧姆龙PLC的CIP协议通讯。</item>
+    ///             <item>初步添加OpenProtocol协议，还未完成，为测试。</item>
+    ///             <item>MelsecMcNet:字单位的批量读取长度突破960长度的限制，支持读取任意长度。</item>
+    ///             <item>MelsecMcAsciiNet:字单位的批量读取长度突破480长度的限制，支持读取任意长度。</item>
+    ///             <item>AllenBradleyNet:读取地址优化，支持读取数组任意起始位置，任意长度，支持结构体嵌套读取。</item>
+    ///             <item>其他大量的代码细节优化。</item>
+    ///         </list>
+    ///     </revision>
+    ///     <revision date="2019-6-25" version="7.0.1" author="Richard.Hu">
+    ///         <list type="bullet">
+    ///             <item>IReadWriteNet完善几个忘记添加的Write不同类型参数的重载方法。</item>
+    ///             <item>IReadWriteNet新增ReadBool方法，Write(string address, bool value)方法，是否支持操作需要看plc是否支持，不支持返回操作不支持的错误。</item>
+    ///             <item>OmronFinsNet:新增一个属性，IsChangeSA1AfterReadFailed，当设置为True时，通信失败后，就会自动修改SA1的值，这样就能快速链接上PLC了。</item>
+    ///             <item>OmronFinsNet:新增读写E区的能力，地址示例E0.0，EF.100，E12.200。</item>
+    ///             <item>新增HslDeviceAddress特性类，现在支持直接基于对象的读写操作，提供了一种更加便捷的读写数据的机制，详细的关注后续的论坛。</item>
     ///         </list>
     ///     </revision>
     /// </revisionHistory>
@@ -718,5 +818,19 @@ namespace HslCommunication
 
 
     // bugs
-    // 文件引擎，上传文件的时候，如果客户端上传到一半，直接关闭客户端，服务器端会认为是成功的
+    // IReadWriteNet接口可以读取数据可以，Write方法写入西门子数据不管赋值什么值写入都是0，强制转换成simenss7net 又可以正常写入
+
+
+
+
+    //git checkout A
+    //git log
+    //找出要合并的commit ID :
+    //例如
+    //0128660c08e325d410cb845616af355c0c19c6fe
+    //然后切换到B分支上
+    //git checkout B
+    //git cherry-pick  0128660c08e325d410cb845616af355c0c19c6fe
+
+    //然后就将A分支的某个commit合并到了B分支了
 }

@@ -12,7 +12,7 @@ namespace HslCommunication.Serial
     /// <summary>
     /// 所有串行通信类的基类，提供了一些基础的服务
     /// </summary>
-    public class SerialBase
+    public class SerialBase : IDisposable
     {
         #region Constructor
 
@@ -35,23 +35,40 @@ namespace HslCommunication.Serial
         /// <param name="portName">端口号信息，例如"COM3"</param>
         public void SerialPortInni( string portName )
         {
+            SerialPortInni( portName, 9600 );
+        }
+
+        /// <summary>
+        /// 初始化串口信息，波特率，8位数据位，1位停止位，无奇偶校验
+        /// </summary>
+        /// <param name="portName">端口号信息，例如"COM3"</param>
+        /// <param name="baudRate">波特率</param>
+        public void SerialPortInni( string portName, int baudRate )
+        {
+            SerialPortInni( portName, baudRate, 8, StopBits.One, Parity.None );
+        }
+
+        /// <summary>
+        /// 初始化串口信息，波特率，数据位，停止位，奇偶校验需要全部自己来指定
+        /// </summary>
+        /// <param name="portName">端口号信息，例如"COM3"</param>
+        /// <param name="baudRate">波特率</param>
+        /// <param name="dataBits">数据位</param>
+        /// <param name="stopBits">停止位</param>
+        /// <param name="parity">奇偶校验</param>
+        public void SerialPortInni( string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity )
+        {
             if (SP_ReadData.IsOpen)
             {
                 return;
             }
-            // 串口的端口号
-            SP_ReadData.PortName = portName;
-            // 串口的波特率
-            SP_ReadData.BaudRate = 9600;
-            // 串口的数据位
-            SP_ReadData.DataBits = 8;
-            // 停止位
-            SP_ReadData.StopBits = StopBits.One;
-            // 奇偶校验为偶数
-            SP_ReadData.Parity = Parity.None;
-
-
-            //SP_ReadData.DataReceived += SP_ReadData_DataReceived;
+            SP_ReadData.PortName     = portName;    // 串口
+            SP_ReadData.BaudRate     = baudRate;    // 波特率
+            SP_ReadData.DataBits     = dataBits;    // 数据位
+            SP_ReadData.StopBits     = stopBits;    // 停止位
+            SP_ReadData.Parity       = parity;      // 奇偶校验
+            PortName                 = SP_ReadData.PortName;
+            BaudRate                 = SP_ReadData.BaudRate;
         }
 
         /// <summary>
@@ -64,25 +81,17 @@ namespace HslCommunication.Serial
             {
                 return;
             }
-            // 串口的端口号
-            SP_ReadData.PortName = "COM5";
-            // 串口的波特率
-            SP_ReadData.BaudRate = 9600;
-            // 串口的数据位
-            SP_ReadData.DataBits = 8;
-            // 停止位
-            SP_ReadData.StopBits = StopBits.One;
-            // 奇偶校验为偶数
-            SP_ReadData.Parity = Parity.None;
+            SP_ReadData.PortName      = "COM5";
+            SP_ReadData.BaudRate      = 9600;
+            SP_ReadData.DataBits      = 8;
+            SP_ReadData.StopBits      = StopBits.One;
+            SP_ReadData.Parity        = Parity.None;
 
             initi.Invoke( SP_ReadData );
 
-
-            //SP_ReadData.DataReceived += SP_ReadData_DataReceived;
+            PortName                  = SP_ReadData.PortName;
+            BaudRate                  = SP_ReadData.BaudRate;
         }
-
-
-
 
         /// <summary>
         /// 打开一个新的串行端口连接
@@ -200,6 +209,8 @@ namespace HslCommunication.Serial
         {
             if (data != null && data.Length > 0)
             {
+                if (!Authorization.nzugaydgwadawdibbas( )) return new OperateResult<byte[]>( StringResources.Language.AuthorizationFailed );
+
                 try
                 {
                     serialPort.Write( data, 0, data.Length );
@@ -224,6 +235,8 @@ namespace HslCommunication.Serial
         /// <returns>结果数据对象</returns>
         protected virtual OperateResult<byte[]> SPReceived( SerialPort serialPort, bool awaitData )
         {
+            if (!Authorization.nzugaydgwadawdibbas( )) return new OperateResult<byte[]>( StringResources.Language.AuthorizationFailed );
+
             byte[] buffer = new byte[1024];
             System.IO.MemoryStream ms = new System.IO.MemoryStream( );
             DateTime start = DateTime.Now;                                  // 开始时间，用于确认是否超时的信息
@@ -323,10 +336,67 @@ namespace HslCommunication.Serial
             set { isClearCacheBeforeRead = value; }
         }
 
+        /// <summary>
+        /// 本连接对象的端口号名称
+        /// </summary>
+        public string PortName { get; private set; }
+
+        /// <summary>
+        /// 本连接对象的波特率
+        /// </summary>
+        public int BaudRate { get; private set; }
+
         #endregion
 
+        #region IDisposable Support
+
+        private bool disposedValue = false; // 要检测冗余调用
+
+        /// <summary>
+        /// 释放当前的对象
+        /// </summary>
+        /// <param name="disposing">是否在</param>
+        protected virtual void Dispose( bool disposing )
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)。
+                    hybirdLock?.Dispose( );
+                    SP_ReadData?.Dispose( );
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // TODO: 将大型字段设置为 null。
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+        // ~SerialBase()
+        // {
+        //   // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+        //   Dispose(false);
+        // }
+
+        // 添加此代码以正确实现可处置模式。
+        /// <summary>
+        /// 释放当前的对象
+        /// </summary>
+        public void Dispose( )
+        {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose( true );
+            // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
+
         #region Private Member
-        
+
         private SerialPort SP_ReadData = null;                    // 串口交互的核心
         private SimpleHybirdLock hybirdLock;                      // 数据交互的锁
         private ILogNet logNet;                                   // 日志存储

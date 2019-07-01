@@ -29,13 +29,6 @@ namespace HslCommunicationDemo
 
             Language( Program.Language );
 
-
-            if (!Program.ShowAuthorInfomation)
-            {
-                label2.Visible = false;
-                linkLabel1.Visible = false;
-                label20.Visible = false;
-            }
         }
 
         private void Language( int language )
@@ -43,8 +36,6 @@ namespace HslCommunicationDemo
             if (language == 1)
             {
                 Text = "Simplify网络客户端";
-                label2.Text = "博客地址：";
-                label4.Text = "使用协议：";
                 label1.Text = "Ip地址：";
                 label3.Text = "端口号：";
                 button1.Text = "连接";
@@ -60,14 +51,10 @@ namespace HslCommunicationDemo
                 label11.Text = "耗时：";
                 button4.Text = "清空";
                 label12.Text = "接收：";
-                label5.Text = "Hsl协议";
-                label20.Text = "作者：Richard Hu";
             }
             else
             {
                 Text = "Simplify Net Client Test";
-                label2.Text = "Blogs:";
-                label4.Text = "Protocols:";
                 label1.Text = "Ip:";
                 label3.Text = "Port:";
                 button1.Text = "Connect";
@@ -83,8 +70,6 @@ namespace HslCommunicationDemo
                 label11.Text = "Take:";
                 button4.Text = "Clear";
                 label12.Text = "Receive:";
-                label5.Text = "Hsl protocol";
-                label20.Text = "Author:Richard Hu";
             }
         }
 
@@ -96,6 +81,7 @@ namespace HslCommunicationDemo
             simplifyClient.IpAddress = textBox1.Text;
             simplifyClient.Port = int.Parse( textBox2.Text );
             simplifyClient.Token = new Guid( textBox3.Text );
+            simplifyClient.SetLoginAccount( textBox9.Text, textBox10.Text );
             OperateResult connect = simplifyClient.ConnectServer( );
 
             if(connect.IsSuccess)
@@ -188,16 +174,37 @@ namespace HslCommunicationDemo
             textBox8.Clear( );
         }
 
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
+        private void Button7_Click( object sender, EventArgs e )
         {
-            try
+            // 数据发送
+            NetHandle handle = new NetHandle( );
+            if (textBox5.Text.IndexOf( '.' ) >= 0)
             {
-                System.Diagnostics.Process.Start( linkLabel1.Text );
+                string[] values = textBox5.Text.Split( '.' );
+                handle = new NetHandle( byte.Parse( values[0] ), byte.Parse( values[1] ), ushort.Parse( values[2] ) );
             }
-            catch (Exception ex)
+            else
             {
-                HslCommunication.BasicFramework.SoftBasic.ShowExceptionMessage( ex );
+                handle = int.Parse( textBox5.Text );
             }
+
+
+            int count = int.Parse( textBox6.Text );
+            DateTime start = DateTime.Now;
+            for (int i = 0; i < count; i++)
+            {
+                OperateResult<NetHandle,string[]> read = simplifyClient.ReadCustomerFromServer( handle, textBox4.Text.Split(new char[] { ';' } ) );
+                if (read.IsSuccess)
+                {
+                    textBox8.Lines = read.Content2;
+                }
+                else
+                {
+                    MessageBox.Show( Program.Language == 1 ? "读取失败：" : "Read Failed:" + read.ToMessageShowString( ) );
+                }
+            }
+
+            textBox7.Text = (DateTime.Now - start).TotalMilliseconds.ToString( "F2" );
         }
     }
 

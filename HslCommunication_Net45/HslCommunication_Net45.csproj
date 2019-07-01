@@ -43,7 +43,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Alarm\AlarmDegree.cs" />
+    <Compile Include="Algorithms\Alarm\AlarmItem.cs" />
+    <Compile Include="Authorization.cs" />
     <Compile Include="BasicFramework\SharpList.cs" />
     <Compile Include="Algorithms\ConnectPool\ConnectPool.cs" />
     <Compile Include="Algorithms\ConnectPool\IConnector.cs" />
@@ -174,6 +178,9 @@
       <DependentUpon>UserVerticalProgress.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\Address\DeviceAddressBase.cs" />
+    <Compile Include="Core\Address\DeviceAddressDataBase.cs" />
+    <Compile Include="Core\Address\MelsecMcAddressData.cs" />
+    <Compile Include="Core\Address\S7AddressData.cs" />
     <Compile Include="Core\IMessage\AlienMessage.cs" />
     <Compile Include="Core\IMessage\AllenBradleyMessage.cs" />
     <Compile Include="Core\IMessage\EFORTMessage.cs" />
@@ -183,10 +190,12 @@
     <Compile Include="Core\IMessage\HslMessage.cs" />
     <Compile Include="Core\IMessage\INetMessage.cs" />
     <Compile Include="Core\IMessage\KukaVarProxyMessage.cs" />
+    <Compile Include="Core\IMessage\LsisFastEnetMessage.cs" />
     <Compile Include="Core\IMessage\MelsecA1EBinaryMessage.cs" />
     <Compile Include="Core\IMessage\MelsecQnA3EAsciiMessage.cs" />
     <Compile Include="Core\IMessage\MelsecQnA3EBinaryMessage.cs" />
     <Compile Include="Core\IMessage\ModbusTcpMessage.cs" />
+    <Compile Include="Core\IMessage\OpenProtocolMessage.cs" />
     <Compile Include="Core\IMessage\S7Message.cs" />
     <Compile Include="Core\Net\ClassNetHandle.cs" />
     <Compile Include="Core\Net\CommunicationProtocol.cs" />
@@ -194,6 +203,7 @@
     <Compile Include="Core\Net\IRobotNet.cs" />
     <Compile Include="Core\Net\NetSupport.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkAlienClient.cs" />
+    <Compile Include="Core\Net\NetworkBase\NetworkAuthenticationServerBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkDataServerBase.cs" />
     <Compile Include="Core\Net\NetworkBase\NetworkDeviceBase.cs" />
@@ -209,6 +219,8 @@
     <Compile Include="Core\Net\StateOne\FileStateObject.cs" />
     <Compile Include="Core\Net\StateOne\StateObject.cs" />
     <Compile Include="Core\Net\StateOne\StateOneBase.cs" />
+    <Compile Include="Core\Reflection\HslAddressAttribute.cs" />
+    <Compile Include="Core\Reflection\HslReflectionHelper.cs" />
     <Compile Include="Core\Security\Security.cs" />
     <Compile Include="Core\Thread\ThreadLock.cs" />
     <Compile Include="Core\Transfer\ByteTransformBase.cs" />
@@ -218,6 +230,7 @@
     <Compile Include="Core\Transfer\RegularByteTransform.cs" />
     <Compile Include="Core\Transfer\ReverseBytesTransform.cs" />
     <Compile Include="Core\Transfer\ReverseWordTransform.cs" />
+    <Compile Include="Core\Types\CertificateDegree.cs" />
     <Compile Include="Core\Types\HslPieItem.cs" />
     <Compile Include="Core\Types\HslTimeOut.cs" />
     <Compile Include="Core\Types\IDataTransfer.cs" />
@@ -278,11 +291,17 @@
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyHelper.cs" />
     <Compile Include="Profinet\AllenBradley\AllenBradleyNet.cs" />
+    <Compile Include="Profinet\FATEK\FatekProgram.cs" />
+    <Compile Include="Profinet\Fuji\FujiSPB.cs" />
     <Compile Include="Profinet\Keyence\KeyenceDataType.cs" />
     <Compile Include="Profinet\Keyence\KeyenceMcAsciiNet.cs" />
     <Compile Include="Profinet\Keyence\KeyenceMcNet.cs" />
     <Compile Include="Profinet\Keyence\KeyenceNanoByteTransform.cs" />
     <Compile Include="Profinet\Keyence\KeyenceNanoSerial.cs" />
+    <Compile Include="Profinet\LSIS\LSCpuInfo.cs" />
+    <Compile Include="Profinet\LSIS\LSisServer.cs" />
+    <Compile Include="Profinet\LSIS\XGBCnet.cs" />
+    <Compile Include="Profinet\LSIS\XGBFastEnet.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1EDataType.cs" />
     <Compile Include="Profinet\Melsec\MelsecA1ENet.cs" />
     <Compile Include="Profinet\Melsec\MelsecA3CNet1.cs" />
@@ -291,13 +310,17 @@
     <Compile Include="Profinet\Melsec\MelsecMcAsciiNet.cs" />
     <Compile Include="Profinet\Melsec\MelsecMcDataType.cs" />
     <Compile Include="Profinet\Melsec\MelsecMcNet.cs" />
+    <Compile Include="Profinet\Melsec\MelsecMcServer.cs" />
     <Compile Include="Profinet\Melsec\MelsecNetMultiAsync.cs" />
     <Compile Include="Profinet\Melsec\MelsecFxSerial.cs" />
+    <Compile Include="Profinet\Omron\OmronCipNet.cs" />
     <Compile Include="Profinet\Omron\OmronFinsDataType.cs" />
     <Compile Include="Profinet\Omron\OmronFinsNet.cs" />
     <Compile Include="Profinet\Omron\OmronFinsNetHelper.cs" />
     <Compile Include="Profinet\Omron\OmronFinsUdp.cs" />
     <Compile Include="Profinet\Omron\OmronHostLink.cs" />
+    <Compile Include="Profinet\OpenProtocol\OpenProtocolNet.cs" />
+    <Compile Include="Profinet\Panasonic\PanasonicMcNet.cs" />
     <Compile Include="Profinet\Panasonic\PanasonicMewtocol.cs" />
     <Compile Include="Profinet\Siemens\SiemensFetchWriteNet.cs" />
     <Compile Include="Profinet\Siemens\SiemensPLCS.cs" />

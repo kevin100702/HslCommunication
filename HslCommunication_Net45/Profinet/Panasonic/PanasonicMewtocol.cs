@@ -225,12 +225,12 @@ namespace HslCommunication.Profinet.Panasonic
         #region Read Write Bool
 
         /// <summary>
-        /// 批量读取松下PLC的位地址
+        /// 批量读取松下PLC的位数据
         /// </summary>
         /// <param name="address">起始地址</param>
         /// <param name="length">数据长度</param>
         /// <returns>读取结果对象</returns>
-        public OperateResult<bool[]> ReadBool(string address, ushort length )
+        public override OperateResult<bool[]> ReadBool(string address, ushort length )
         {
             // 读取数据
             OperateResult<byte[]> read = Read( address, length );
@@ -242,26 +242,12 @@ namespace HslCommunication.Profinet.Panasonic
         }
 
         /// <summary>
-        /// 读取单个的Bool数据
-        /// </summary>
-        /// <param name="address">起始地址</param>
-        /// <returns>读取结果对象</returns>
-        public OperateResult<bool> ReadBool(string address )
-        {
-            // 读取数据
-            OperateResult<bool[]> read = ReadBool( address, 1 );
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>( read );
-
-            return OperateResult.CreateSuccessResult( read.Content[0] );
-        }
-
-        /// <summary>
         /// 写入bool数据信息，存在一定的风险，谨慎操作
         /// </summary>
         /// <param name="address">起始地址</param>
         /// <param name="values">数据值信息</param>
         /// <returns>返回是否成功的结果对象</returns>
-        public OperateResult Write(string address, bool[] values )
+        public override OperateResult Write(string address, bool[] values )
         {
             // 计算字节数据
             byte[] buffer = BasicFramework.SoftBasic.BoolArrayToByte( values );
@@ -278,15 +264,17 @@ namespace HslCommunication.Profinet.Panasonic
             return ExtraActualData( read.Content );
         }
 
+        #endregion
+
+        #region Object Override
+
         /// <summary>
-        /// 写入bool数据数据
+        /// 返回表示当前对象的字符串
         /// </summary>
-        /// <param name="address">起始地址</param>
-        /// <param name="value">True还是False</param>
-        /// <returns>返回是否成功的结果对象</returns>
-        public OperateResult Write( string address, bool value )
+        /// <returns>字符串信息</returns>
+        public override string ToString( )
         {
-            return Write( address, new bool[] { value } );
+            return $"Panasonic Mewtocol[{PortName}:{BaudRate}]";
         }
 
         #endregion
@@ -639,6 +627,5 @@ namespace HslCommunication.Profinet.Panasonic
         
 
         #endregion
-
     }
 }

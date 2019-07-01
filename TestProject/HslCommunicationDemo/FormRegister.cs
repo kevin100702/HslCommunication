@@ -20,18 +20,13 @@ namespace HslCommunicationDemo
 
         private void FormRegister_Load( object sender, EventArgs e )
         {
-            softAuthorize = new HslCommunication.BasicFramework.SoftAuthorize( );            // 实例化
+            softAuthorize = new HslCommunication.BasicFramework.SoftAuthorize(Settings1.Default.UseAdmin);            // 实例化
             softAuthorize.ILogNet = new HslCommunication.LogNet.LogNetSingle( "log.txt" );   // 日志
             softAuthorize.FileSavePath = Application.StartupPath + @"\Authorize.txt";        // 设置存储激活码的文件，该存储是加密的
             softAuthorize.LoadByFile( );
 
 
-            if (!Program.ShowAuthorInfomation)
-            {
-                label2.Visible = false;
-                linkLabel1.Visible = false;
-                label20.Visible = false;
-            }
+            checkBox2.Checked=Settings1.Default.UseAdmin;
         }
 
         private void button1_Click( object sender, EventArgs e )
@@ -88,17 +83,6 @@ namespace HslCommunicationDemo
             }
         }
 
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e )
-        {
-            try
-            {
-                System.Diagnostics.Process.Start( linkLabel1.Text );
-            }
-            catch(Exception ex)
-            {
-                HslCommunication.BasicFramework.SoftBasic.ShowExceptionMessage( ex );
-            }
-        }
 
         private void checkBox1_CheckedChanged( object sender, EventArgs e )
         {
@@ -123,6 +107,12 @@ namespace HslCommunicationDemo
             {
                 HslCommunication.BasicFramework.SoftBasic.ShowExceptionMessage( ex );
             }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings1.Default.UseAdmin = checkBox2.Checked;
+            Settings1.Default.Save();
         }
     }
 }

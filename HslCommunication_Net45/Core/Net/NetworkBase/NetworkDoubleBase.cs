@@ -14,9 +14,9 @@ namespace HslCommunication.Core.Net
     /// Universal client base class that supports long connections and short connections to two modes
     /// </summary>
     /// <example>
-    /// 无，请使用继承类实例化，然后进行数据交互。
+    /// 无，请使用继承类实例化，然后进行数据交互，当前的类并没有具体的实现。
     /// </example>
-    public class NetworkDoubleBase<TNetMessage, TTransform> : NetworkBase where TNetMessage : INetMessage, new() where TTransform : IByteTransform, new()
+    public class NetworkDoubleBase<TNetMessage, TTransform> : NetworkBase, IDisposable where TNetMessage : INetMessage, new() where TTransform : IByteTransform, new()
     {
         #region Constructor
 
@@ -25,25 +25,38 @@ namespace HslCommunication.Core.Net
         /// </summary>
         public NetworkDoubleBase( )
         {
-            ByteTransform     = new TTransform( );                                           // 实例化变换类的对象
-            InteractiveLock   = new SimpleHybirdLock( );                                     // 实例化数据访问锁
-            connectionId      = BasicFramework.SoftBasic.GetUniqueStringByGuidAndRandom( );  // 设备的唯一的编号
+            ByteTransform = new TTransform( );                                           // 实例化变换类的对象
+            InteractiveLock = new SimpleHybirdLock( );                                     // 实例化数据访问锁
+            connectionId = BasicFramework.SoftBasic.GetUniqueStringByGuidAndRandom( );  // 设备的唯一的编号
         }
 
         #endregion
 
         #region Private Member
-        
+
         private TTransform byteTransform;                // 数据变换的接口
         private string ipAddress = "127.0.0.1";          // 连接的IP地址
         private int port = 10000;                        // 端口号
         private int connectTimeOut = 10000;              // 连接超时时间设置
-        private int receiveTimeOut = 10000;              // 数据接收的超时时间
-        private bool isPersistentConn = false;           // 是否处于长连接的状态
-        private SimpleHybirdLock InteractiveLock;        // 一次正常的交互的互斥锁
-        private bool IsSocketError = false;              // 指示长连接的套接字是否处于错误的状态
-        private bool isUseSpecifiedSocket = false;       // 指示是否使用指定的网络套接字访问数据
         private string connectionId = string.Empty;      // 当前连接
+        private bool isUseSpecifiedSocket = false;       // 指示是否使用指定的网络套接字访问数据
+
+        /// <summary>
+        /// 接收数据的超时时间
+        /// </summary>
+        protected int receiveTimeOut = 10000;            // 数据接收的超时时间
+        /// <summary>
+        /// 是否是长连接的状态
+        /// </summary>
+        protected bool isPersistentConn = false;         // 是否处于长连接的状态
+        /// <summary>
+        /// 交互的混合锁
+        /// </summary>
+        protected SimpleHybirdLock InteractiveLock;      // 一次正常的交互的互斥锁
+        /// <summary>
+        /// 当前的socket是否发生了错误
+        /// </summary>
+        protected bool IsSocketError = false;            // 指示长连接的套接字是否处于错误的状态
 
         #endregion
 
@@ -75,7 +88,7 @@ namespace HslCommunication.Core.Net
         /// </remarks>
         public int ConnectTimeOut
         {
-            get{return connectTimeOut;}
+            get { return connectTimeOut; }
             set { if (value >= 0) connectTimeOut = value; }
         }
 
@@ -162,7 +175,6 @@ namespace HslCommunication.Core.Net
             set { connectionId = value; }
         }
 
-
         /// <summary>
         /// 当前的异形连接对象，如果设置了异形连接的话
         /// </summary>
@@ -170,7 +182,6 @@ namespace HslCommunication.Core.Net
         /// 具体的使用方法请参照Demo项目中的异形modbus实现。
         /// </remarks>
         public AlienSession AlienSession { get; set; }
-
 
         #endregion
 
@@ -215,7 +226,7 @@ namespace HslCommunication.Core.Net
             if (!rSocket.IsSuccess)
             {
                 IsSocketError = true;
-                rSocket.Content = null;                 
+                rSocket.Content = null;
                 result.Message = rSocket.Message;
             }
             else
@@ -227,7 +238,6 @@ namespace HslCommunication.Core.Net
 
             return result;
         }
-
 
         /// <summary>
         /// 使用指定的套接字创建异形客户端
@@ -278,7 +288,6 @@ namespace HslCommunication.Core.Net
             }
         }
 
-
         /// <summary>
         /// 在长连接模式下，断开服务器的连接，并切换到短连接模式
         /// </summary>
@@ -299,7 +308,7 @@ namespace HslCommunication.Core.Net
             CoreSocket?.Close( );
             CoreSocket = null;
             InteractiveLock.Leave( );
-            
+
             LogNet?.WriteDebug( ToString( ), StringResources.Language.NetEngineClose );
             return result;
         }
@@ -335,8 +344,77 @@ namespace HslCommunication.Core.Net
             return OperateResult.CreateSuccessResult( );
         }
 
+        /// <summary>
+        /// 和服务器交互完成的时候调用的方法，无论是成功或是失败，都将会调用，具体的操作需要重写实现
+        /// </summary>
+        /// <param name="read">读取结果</param>
+        protected virtual void ExtraAfterReadFromCoreServer( OperateResult read )
+        {
+
+        }
+
         #endregion
-        
+
+        #region Account Control
+
+        /************************************************************************************************
+         * 
+         *    这部分的内容是为了实现账户控制的，如果服务器按照hsl协议强制socket账户登录的话，本客户端类就需要额外指定账户密码
+         *    
+         *    The content of this part is for account control. If the server forces the socket account to log in according to the hsl protocol,
+         *    the client class needs to specify the account password.
+         *    
+         *    适用于hsl实现的modbus服务器，三菱及西门子，NetSimplify服务器类等
+         *    
+         *    Modbus server for hsl implementation, Mitsubishi and Siemens, NetSimplify server class, etc.
+         * 
+         ************************************************************************************************/
+
+        /// <summary>
+        /// 是否使用账号登录
+        /// </summary>
+        protected bool isUseAccountCertificate = false;
+        private string userName = string.Empty;
+        private string password = string.Empty;
+
+        /// <summary>
+        /// 设置当前的登录的账户名和密码信息，账户名为空时设置不生效
+        /// </summary>
+        /// <param name="userName">账户名</param>
+        /// <param name="password">密码</param>
+        public void SetLoginAccount(string userName, string password )
+        {
+            if (!string.IsNullOrEmpty( userName.Trim( ) ))
+            {
+                isUseAccountCertificate = true;
+                this.userName = userName;
+                this.password = password;
+            }
+            else
+            {
+                isUseAccountCertificate = false;
+            }
+        }
+
+        /// <summary>
+        /// 认证账号，将使用已经设置的用户名和密码进行账号认证。
+        /// </summary>
+        /// <param name="socket">套接字</param>
+        /// <returns>认证结果</returns>
+        protected OperateResult AccountCertificate(Socket socket )
+        {
+            OperateResult send = SendAccountAndCheckReceive( socket, 1, this.userName, this.password );
+            if (!send.IsSuccess) return send;
+
+            OperateResult<int, string[]> read = ReceiveStringArrayContentFromSocket( socket );
+            if (!read.IsSuccess) return read;
+
+            if (read.Content1 == 0) return new OperateResult( read.Content2[0] );
+            return OperateResult.CreateSuccessResult( );
+        }
+
+        #endregion
+
         #region Core Communication
 
         /***************************************************************************************
@@ -353,14 +431,14 @@ namespace HslCommunication.Core.Net
         /// 获取本次操作的可用的网络套接字
         /// </summary>
         /// <returns>是否成功，如果成功，使用这个套接字</returns>
-        private OperateResult<Socket> GetAvailableSocket( )
+        protected OperateResult<Socket> GetAvailableSocket( )
         {
             if (isPersistentConn)
             {
                 // 如果是异形模式
                 if (isUseSpecifiedSocket)
                 {
-                    if(IsSocketError)
+                    if (IsSocketError)
                     {
                         return new OperateResult<Socket>( StringResources.Language.ConnectionIsNotAvailable );
                     }
@@ -398,7 +476,7 @@ namespace HslCommunication.Core.Net
                 return CreateSocketAndInitialication( );
             }
         }
-        
+
         /// <summary>
         /// 连接并初始化网络套接字
         /// </summary>
@@ -420,15 +498,6 @@ namespace HslCommunication.Core.Net
             return result;
         }
 
-        /// <summary>
-        /// 指示如何创建一个新的消息对象
-        /// </summary>
-        /// <returns>消息对象</returns>
-        protected virtual INetMessage GetNewNetMessage()
-        {
-            return null;
-        }
-        
         /// <summary>
         /// 在其他指定的套接字上，使用报文来通讯，传入需要发送的消息，返回一条完整的数据指令
         /// </summary>
@@ -526,11 +595,59 @@ namespace HslCommunication.Core.Net
                 result.CopyErrorFromOther( read );
             }
 
+            ExtraAfterReadFromCoreServer( read );
+
             InteractiveLock.Leave( );
             if (!isPersistentConn) resultSocket.Content?.Close( );
             return result;
         }
-        
+
+        #endregion
+
+        #region IDisposable Support
+
+        private bool disposedValue = false; // 要检测冗余调用
+
+        /// <summary>
+        /// 释放当前的资源，并自动关闭长连接，如果设置了的话
+        /// </summary>
+        /// <param name="disposing">是否释放托管的资源信息</param>
+        protected virtual void Dispose( bool disposing )
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)。
+                    ConnectClose( );
+                    InteractiveLock?.Dispose( );
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // TODO: 将大型字段设置为 null。
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+        // ~NetworkDoubleBase()
+        // {
+        //   // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+        //   Dispose(false);
+        // }
+
+        // 添加此代码以正确实现可处置模式。
+        /// <summary>
+        /// 释放当前的资源
+        /// </summary>
+        public void Dispose( )
+        {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose( true );
+            // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+            // GC.SuppressFinalize(this);
+        }
         #endregion
 
         #region Object Override
@@ -543,7 +660,6 @@ namespace HslCommunication.Core.Net
         {
             return $"NetworkDoubleBase<{typeof( TNetMessage )}, {typeof( TTransform )}>";
         }
-
 
         #endregion
     }

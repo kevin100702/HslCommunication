@@ -114,15 +114,24 @@ namespace HslCommunication.Controls
         private StringFormat stringFormat = new StringFormat( );
         private string headTag = "原料1";
 
-
+        /// <summary>
+        /// 重写消息处理机制
+        /// </summary>
+        /// <param name="m">系统消息</param>
         protected override void WndProc( ref Message m )
         {
             if (m.Msg == 0x14) return;
             base.WndProc( ref m );
         }
 
+        /// <summary>
+        /// 重新绘制界面图形
+        /// </summary>
+        /// <param name="e">绘制消息</param>
         protected override void OnPaint( PaintEventArgs e )
         {
+            if (!Authorization.nzugaydgwadawdibbas( )) return;
+
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;

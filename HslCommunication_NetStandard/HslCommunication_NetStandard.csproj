@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>HslCommunication</AssemblyName>
     <RootNamespace>HslCommunication</RootNamespace>
-    <Version>6.1.0</Version>
+    <Version>7.0.1</Version>
     <Authors>Richard.Hu</Authors>
     <Company />
     <Product>HslCommunication</Product>
     <Description>An industrial IoT underlying architecture framework, focusing on the underlying technical communications and cross-platform, cross-language communication functions, to achieve a variety of mainstream PLC data reading and writing, to achieve modbus of various protocols read and write, and so on, to support the rapid construction of industrial upper computer software, configuration software, SCADA software, factory mes system, To help enterprise Industry 4.0 take-off, to achieve intelligent manufacturing, smart factory goals.</Description>
     <Copyright>Copyright © By Richard.Hu 2017-2019</Copyright>
-    <AssemblyVersion>6.1.0.0</AssemblyVersion>
-    <FileVersion>6.1.0.0</FileVersion>
+    <AssemblyVersion>7.0.1.0</AssemblyVersion>
+    <FileVersion>7.0.1.0</FileVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>HslCommunication.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -36,6 +36,7 @@
     <Compile Include="..\HslCommunication_Net45\Algorithms\ConnectPool\ConnectPool.cs" Link="Algorithms\ConnectPool\ConnectPool.cs" />
     <Compile Include="..\HslCommunication_Net45\Algorithms\ConnectPool\IConnector.cs" Link="Algorithms\ConnectPool\IConnector.cs" />
     <Compile Include="..\HslCommunication_Net45\Algorithms\Fourier\FFTHelper.cs" Link="Algorithms\Fourier\FFTHelper.cs" />
+    <Compile Include="..\HslCommunication_Net45\Authorization.cs" Link="Authorization.cs" />
     <Compile Include="..\HslCommunication_Net45\BasicFramework\SharpList.cs" Link="BasicFramework\SharpList.cs" />
     <Compile Include="..\HslCommunication_Net45\BasicFramework\SoftBaseClass.cs" Link="BasicFramework\SoftBaseClass.cs" />
     <Compile Include="..\HslCommunication_Net45\BasicFramework\SoftBasic.cs" Link="BasicFramework\SoftBasic.cs" />
@@ -50,7 +51,10 @@
     <Compile Include="..\HslCommunication_Net45\BasicFramework\SoftVersion.cs" Link="BasicFramework\SoftVersion.cs" />
     <Compile Include="..\HslCommunication_Net45\BasicFramework\SoftZipped.cs" Link="BasicFramework\SoftZipped.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Address\DeviceAddressBase.cs" Link="Core\Address\DeviceAddressBase.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Address\DeviceAddressDataBase.cs" Link="Core\Address\DeviceAddressDataBase.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Address\MelsecMcAddressData.cs" Link="Core\Address\MelsecMcAddressData.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Address\ModbusAddress.cs" Link="Core\Address\ModbusAddress.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Address\S7AddressData.cs" Link="Core\Address\S7AddressData.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\AlienMessage.cs" Link="Core\IMessage\AlienMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\AllenBradleyMessage.cs" Link="Core\IMessage\AllenBradleyMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\EFORTMessage.cs" Link="Core\IMessage\EFORTMessage.cs" />
@@ -60,10 +64,12 @@
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\HslMessage.cs" Link="Core\IMessage\HslMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\INetMessage.cs" Link="Core\IMessage\INetMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\KukaVarProxyMessage.cs" Link="Core\IMessage\KukaVarProxyMessage.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\IMessage\LsisFastEnetMessage.cs" Link="Core\IMessage\LsisFastEnetMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\MelsecA1EBinaryMessage.cs" Link="Core\IMessage\MelsecA1EBinaryMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\MelsecQnA3EAsciiMessage.cs" Link="Core\IMessage\MelsecQnA3EAsciiMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\MelsecQnA3EBinaryMessage.cs" Link="Core\IMessage\MelsecQnA3EBinaryMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\ModbusTcpMessage.cs" Link="Core\IMessage\ModbusTcpMessage.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\IMessage\OpenProtocolMessage.cs" Link="Core\IMessage\OpenProtocolMessage.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\IMessage\S7Message.cs" Link="Core\IMessage\S7Message.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\ClassNetHandle.cs" Link="Core\Net\ClassNetHandle.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\CommunicationProtocol.cs" Link="Core\Net\CommunicationProtocol.cs" />
@@ -71,6 +77,7 @@
     <Compile Include="..\HslCommunication_Net45\Core\Net\IRobotNet.cs" Link="Core\Net\IRobotNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetSupport.cs" Link="Core\Net\NetSupport.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkAlienClient.cs" Link="Core\Net\NetworkBase\NetworkAlienClient.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkAuthenticationServerBase.cs" Link="Core\Net\NetworkBase\NetworkAuthenticationServerBase.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkBase.cs" Link="Core\Net\NetworkBase\NetworkBase.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkDataServerBase.cs" Link="Core\Net\NetworkBase\NetworkDataServerBase.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\NetworkBase\NetworkDeviceBase.cs" Link="Core\Net\NetworkBase\NetworkDeviceBase.cs" />
@@ -86,6 +93,8 @@
     <Compile Include="..\HslCommunication_Net45\Core\Net\StateOne\FileStateObject.cs" Link="Core\Net\StateOne\FileStateObject.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\StateOne\StateObject.cs" Link="Core\Net\StateOne\StateObject.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Net\StateOne\StateOneBase.cs" Link="Core\Net\StateOne\StateOneBase.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Reflection\HslAddressAttribute.cs" Link="Core\Reflection\HslAddressAttribute.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Reflection\HslReflectionHelper.cs" Link="Core\Reflection\HslReflectionHelper.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Security\Security.cs" Link="Core\Security\Security.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Thread\ThreadLock.cs" Link="Core\Thread\ThreadLock.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Transfer\ByteTransformBase.cs" Link="Core\Transfer\ByteTransformBase.cs" />
@@ -95,6 +104,7 @@
     <Compile Include="..\HslCommunication_Net45\Core\Transfer\RegularByteTransform.cs" Link="Core\Transfer\RegularByteTransform.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Transfer\ReverseBytesTransform.cs" Link="Core\Transfer\ReverseBytesTransform.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Transfer\ReverseWordTransform.cs" Link="Core\Transfer\ReverseWordTransform.cs" />
+    <Compile Include="..\HslCommunication_Net45\Core\Types\CertificateDegree.cs" Link="Core\Types\CertificateDegree.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Types\HslPieItem.cs" Link="Core\Types\HslPieItem.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Types\HslTimeOut.cs" Link="Core\Types\HslTimeOut.cs" />
     <Compile Include="..\HslCommunication_Net45\Core\Types\IDataTransfer.cs" Link="Core\Types\IDataTransfer.cs" />
@@ -142,17 +152,24 @@
     <Compile Include="..\HslCommunication_Net45\Profinet\AllenBradley\AllenBradleyNet.cs" Link="Profinet\AllenBradley\AllenBradleyNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceMcAsciiNet.cs" Link="Profinet\Keyence\KeyenceMcAsciiNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Keyence\KeyenceMcNet.cs" Link="Profinet\Keyence\KeyenceMcNet.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\LSIS\LSCpuInfo.cs" Link="Profinet\LSIS\LSCpuInfo.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\LSIS\LSisServer.cs" Link="Profinet\LSIS\LSisServer.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\LSIS\XGBFastEnet.cs" Link="Profinet\LSIS\XGBFastEnet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecA1EDataType.cs" Link="Profinet\Melsec\MelsecA1EDataType.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecA1ENet.cs" Link="Profinet\Melsec\MelsecA1ENet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecHelper.cs" Link="Profinet\Melsec\MelsecHelper.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecMcAsciiNet.cs" Link="Profinet\Melsec\MelsecMcAsciiNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecMcDataType.cs" Link="Profinet\Melsec\MelsecMcDataType.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecMcNet.cs" Link="Profinet\Melsec\MelsecMcNet.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecMcServer.cs" Link="Profinet\Melsec\MelsecMcServer.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Melsec\MelsecNetMultiAsync.cs" Link="Profinet\Melsec\MelsecNetMultiAsync.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronCipNet.cs" Link="Profinet\Omron\OmronCipNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsDataType.cs" Link="Profinet\Omron\OmronFinsDataType.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsNet.cs" Link="Profinet\Omron\OmronFinsNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsNetHelper.cs" Link="Profinet\Omron\OmronFinsNetHelper.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Omron\OmronFinsUdp.cs" Link="Profinet\Omron\OmronFinsUdp.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\OpenProtocol\OpenProtocolNet.cs" Link="Profinet\OpenProtocol\OpenProtocolNet.cs" />
+    <Compile Include="..\HslCommunication_Net45\Profinet\Panasonic\PanasonicMcNet.cs" Link="Profinet\Panasonic\PanasonicMcNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Siemens\SiemensFetchWriteNet.cs" Link="Profinet\Siemens\SiemensFetchWriteNet.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Siemens\SiemensPLCS.cs" Link="Profinet\Siemens\SiemensPLCS.cs" />
     <Compile Include="..\HslCommunication_Net45\Profinet\Siemens\SiemensS7Net.cs" Link="Profinet\Siemens\SiemensS7Net.cs" />
@@ -170,10 +187,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Algorithms\Alarm\" />
     <Folder Include="Algorithms\ConnectPool\" />
     <Folder Include="Algorithms\Fourier\" />
     <Folder Include="BasicFramework\" />
@@ -181,6 +199,7 @@
     <Folder Include="Core\IMessage\" />
     <Folder Include="Core\Net\NetworkBase\" />
     <Folder Include="Core\Net\StateOne\" />
+    <Folder Include="Core\Reflection\" />
     <Folder Include="Core\Security\" />
     <Folder Include="Core\Thread\" />
     <Folder Include="Core\Transfer\" />
@@ -199,12 +218,16 @@
     <Folder Include="ModBus\ModbusRtu\" />
     <Folder Include="ModBus\ModbusTcp\" />
     <Folder Include="ModBus\ModbusAscii\" />
+    <Folder Include="Profinet\Fuji\" />
+    <Folder Include="Profinet\LSIS\" />
     <Folder Include="Profinet\Melsec\" />
     <Folder Include="Profinet\Omron\" />
+    <Folder Include="Profinet\OpenProtocol\" />
     <Folder Include="Profinet\Siemens\" />
     <Folder Include="Profinet\AllenBradley\" />
     <Folder Include="Profinet\Panasonic\" />
     <Folder Include="Profinet\Keyence\" />
+    <Folder Include="Profinet\FATEK\" />
     <Folder Include="Robot\EFORT\" />
     <Folder Include="Language\" />
     <Folder Include="Instrument\" />

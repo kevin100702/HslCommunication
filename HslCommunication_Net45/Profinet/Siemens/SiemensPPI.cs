@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HslCommunication.Serial;
+using HslCommunication.Core.Address;
 #if Net45
 using System.Threading.Tasks;
 #endif
@@ -32,6 +33,7 @@ namespace HslCommunication.Profinet.Siemens
 
         #endregion
 
+        #region Public Properties
 
         /// <summary>
         /// 西门子PLC的站号信息
@@ -50,6 +52,9 @@ namespace HslCommunication.Profinet.Siemens
             }
         }
 
+        #endregion
+
+        #region Read Write Override
 
         /// <summary>
         /// 从西门子的PLC中读取数据信息，地址为"M100","AI100","I0","Q0","V100","S100"等，详细请参照API文档
@@ -94,7 +99,7 @@ namespace HslCommunication.Profinet.Siemens
         /// <param name="address">西门子的地址数据信息</param>
         /// <param name="length">数据长度</param>
         /// <returns>带返回结果的结果对象</returns>
-        public OperateResult<bool[]> ReadBool( string address, ushort length )
+        public override OperateResult<bool[]> ReadBool( string address, ushort length )
         {
             // 解析指令
             OperateResult<byte[]> command = BuildReadCommand( station, address, length, true );
@@ -115,29 +120,16 @@ namespace HslCommunication.Profinet.Siemens
             if (read2.Content.Length < 21) return new OperateResult<bool[]>( read2.ErrorCode, "Failed: " + BasicFramework.SoftBasic.ByteToHexString( read2.Content, ' ' ) );
             if (read2.Content[17] != 0x00 || read2.Content[18] != 0x00) return new OperateResult<bool[]>( read2.Content[19], GetMsgFromStatus( read2.Content[18], read2.Content[19] ) );
             if (read2.Content[21] != 0xFF) return new OperateResult<bool[]>( read2.Content[21], GetMsgFromStatus( read2.Content[21] ) );
-            // 数据提取
 
+            // 数据提取
             byte[] buffer = new byte[read2.Content.Length - 27];
             if (read2.Content[21] == 0xFF && read2.Content[22] == 0x03)
             {
                 Array.Copy( read2.Content, 25, buffer, 0, buffer.Length );
             }
+
             return OperateResult.CreateSuccessResult( BasicFramework.SoftBasic.ByteToBoolArray( buffer, length ) );
         }
-
-        /// <summary>
-        /// 从西门子的PLC中读取bool数据信息，地址为"M100.0","AI100.1","I0.3","Q0.6","V100.4","S100"等，详细请参照API文档
-        /// </summary>
-        /// <param name="address">西门子的地址数据信息</param>
-        /// <returns>带返回结果的结果对象</returns>
-        public OperateResult<bool> ReadBool( string address )
-        {
-            OperateResult<bool[]> read = ReadBool( address, 1 );
-            if (!read.IsSuccess) return OperateResult.CreateFailedResult<bool>( read );
-
-            return OperateResult.CreateSuccessResult( read.Content[0] );
-        }
-
 
         /// <summary>
         /// 将字节数据写入到西门子PLC中，地址为"M100.0","AI100.1","I0.3","Q0.6","V100.4","S100"等，详细请参照API文档
@@ -176,7 +168,7 @@ namespace HslCommunication.Profinet.Siemens
         /// <param name="address">西门子的地址数据信息</param>
         /// <param name="value">数据长度</param>
         /// <returns>带返回结果的结果对象</returns>
-        public OperateResult Write(string address, bool[] value )
+        public override OperateResult Write(string address, bool[] value )
         {
             // 解析指令
             OperateResult<byte[]> command = BuildWriteCommand( station, address, value );
@@ -201,16 +193,7 @@ namespace HslCommunication.Profinet.Siemens
             return OperateResult.CreateSuccessResult( );
         }
 
-        /// <summary>
-        /// 将bool数据写入到西门子PLC中，地址为"M100.0","AI100.1","I0.3","Q0.6","V100.4","S100"等，详细请参照API文档
-        /// </summary>
-        /// <param name="address">西门子的地址数据信息</param>
-        /// <param name="value">数据长度</param>
-        /// <returns>带返回结果的结果对象</returns>
-        public OperateResult Write( string address, bool value )
-        {
-            return Write( address, new bool[] { value } );
-        }
+        #endregion
 
         #region Byte Read Write
 
@@ -296,6 +279,19 @@ namespace HslCommunication.Profinet.Siemens
 
         #endregion
 
+        #region Object Override
+
+        /// <summary>
+        /// 返回表示当前对象的字符串
+        /// </summary>
+        /// <returns>字符串信息</returns>
+        public override string ToString( )
+        {
+            return $"SiemensPPI[{PortName}:{BaudRate}]";
+        }
+
+        #endregion
+
         #region Static Helper
 
 
@@ -316,47 +312,47 @@ namespace HslCommunication.Profinet.Siemens
                 if(address.Substring(0,2) == "AI")
                 {
                     result.Content1 = 0x06;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 2 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 2 ) );
                 }
                 else if (address.Substring( 0, 2 ) == "AQ")
                 {
                     result.Content1 = 0x07;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 2 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 2 ) );
                 }
                 else if (address[0] == 'T')
                 {
                     result.Content1 = 0x1F;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address[0] == 'C')
                 {
                     result.Content1 = 0x1E;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address.Substring( 0, 2 ) == "SM")
                 {
                     result.Content1 = 0x05;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 2 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 2 ) );
                 }
                 else if (address[0] == 'S')
                 {
                     result.Content1 = 0x04;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address[0] == 'I')
                 {
                     result.Content1 = 0x81;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address[0] == 'Q')
                 {
                     result.Content1 = 0x82;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address[0] == 'M')
                 {
                     result.Content1 = 0x83;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else if (address[0] == 'D' || address.Substring( 0, 2 ) == "DB")
                 {
@@ -371,13 +367,13 @@ namespace HslCommunication.Profinet.Siemens
                         result.Content3 = Convert.ToUInt16( adds[0].Substring( 1 ) );
                     }
 
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( address.IndexOf( '.' ) + 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( address.IndexOf( '.' ) + 1 ) );
                 }
                 else if (address[0] == 'V')
                 {
                     result.Content1 = 0x84;
                     result.Content3 = 1;
-                    result.Content2 = SiemensS7Net.CalculateAddressStarted( address.Substring( 1 ) );
+                    result.Content2 = S7AddressData.CalculateAddressStarted( address.Substring( 1 ) );
                 }
                 else
                 {

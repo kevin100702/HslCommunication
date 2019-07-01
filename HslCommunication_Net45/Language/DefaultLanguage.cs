@@ -17,6 +17,7 @@ namespace HslCommunication.Language
          * 
          ************************************************************************************/
 
+        public virtual string AuthorizationFailed => "系统授权失败，需要使用激活码授权，谢谢支持。";
         public virtual string ConnectedFailed => "连接失败：";
         public virtual string ConnectedSuccess => "连接成功！";
         public virtual string UnknownError => "未知错误";
@@ -110,6 +111,7 @@ namespace HslCommunication.Language
         public virtual string CommandHeadCodeCheckFailed => "命令头校验失败";
         public virtual string CommandLengthCheckFailed => "命令长度检查失败";
         public virtual string NetClientAliasFailed => "客户端的别名接收失败：";
+        public virtual string NetClientAccountTimeout => "等待账户验证超时：";
         public virtual string NetEngineStart => "启动引擎";
         public virtual string NetEngineClose => "关闭引擎";
         public virtual string NetClientOnline => "上线";
@@ -208,6 +210,7 @@ namespace HslCommunication.Language
         public virtual string SiemensReadLengthCannotLargerThan19 => "读取的数组数量不允许大于19";
         public virtual string SiemensDataLengthCheckFailed => "数据块长度校验失败，请检查是否开启put/get以及关闭db块优化";
         public virtual string SiemensFWError => "发生了异常，具体信息查找Fetch/Write协议文档";
+        public virtual string SiemensReadLengthOverPlcAssign => "读取的数据范围超出了PLC的设定";
 
         /***********************************************************************************
          * 
@@ -287,6 +290,37 @@ namespace HslCommunication.Language
         public virtual string PanasonicMewStatus65 => "保护错误:在存储保护状态下执行写操作到程序区域或系统寄存器。";
         public virtual string PanasonicMewStatus66 => "地址错误:地址（程序地址、绝对地址等）数据编码形式（BCD、hex 等）、上溢、下溢或指定范围错误。";
         public virtual string PanasonicMewStatus67 => "丢失数据错误:要读的数据不存在。（读取没有写入注释寄存区的数据。。";
+
+
+        /***********************************************************************************
+         * 
+         *   Fatek PLC 永宏PLC相关
+         * 
+         ************************************************************************************/
+        public virtual string FatekStatus02 => "不合法数值";
+        public virtual string FatekStatus03 => "禁止写入";
+        public virtual string FatekStatus04 => "不合法的命令码";
+        public virtual string FatekStatus05 => "不能激活(下RUN命令但Ladder Checksum不合)";
+        public virtual string FatekStatus06 => "不能激活(下RUN命令但PLC ID≠ Ladder ID)";
+        public virtual string FatekStatus07 => "不能激活（下RUN命令但程序语法错误）";
+        public virtual string FatekStatus09 => "不能激活（下RUN命令，但Ladder之程序指令PLC无法执行）";
+        public virtual string FatekStatus10 => "不合法的地址";
+
+
+        /***********************************************************************************
+         * 
+         *   Fuji PLC 富士PLC相关
+         * 
+         ************************************************************************************/
+        public virtual string FujiSpbStatus01 => "对ROM进行了写入";
+        public virtual string FujiSpbStatus02 => "接收了未定义的命令或无法处理的命令";
+        public virtual string FujiSpbStatus03 => "数据部分有矛盾（参数异常）";
+        public virtual string FujiSpbStatus04 => "由于收到了其他编程器的传送联锁，因此无法处理";
+        public virtual string FujiSpbStatus05 => "模块序号不正确";
+        public virtual string FujiSpbStatus06 => "检索项目未找到";
+        public virtual string FujiSpbStatus07 => "指定了超出模块范围的地址（写入时）";
+        public virtual string FujiSpbStatus09 => "由于故障程序无法执行（RUN）";
+        public virtual string FujiSpbStatus0C => "密码不一致";
 
 
 #pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
