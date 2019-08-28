@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace HslCommunication.Core
 {
@@ -60,6 +62,7 @@ namespace HslCommunication.Core
                 {
                     OperateResult<short> valueResult = readWrite.ReadInt16( hslAttribute.address );
                     if (!valueResult.IsSuccess) return OperateResult.CreateFailedResult<T>( valueResult );
+
                     property.SetValue( obj, valueResult.Content, null );
                 }
                 else if (propertyType == typeof( short[] ))
@@ -393,6 +396,22 @@ namespace HslCommunication.Core
             }
 
             return OperateResult.CreateSuccessResult( (T)obj );
+        }
+
+        /// <summary>
+        /// 使用表达式树的方式来给一个属性赋值
+        /// </summary>
+        /// <param name="propertyInfo">属性信息</param>
+        /// <param name="obj">对象信息</param>
+        /// <param name="objValue">实际的值</param>
+        public static void SetPropertyExp<T,K>(PropertyInfo propertyInfo, T obj, K objValue )
+        {
+            // propertyInfo.SetValue( obj, objValue, null );  下面就是实现这句话
+            var invokeObjExpr = Expression.Parameter( typeof( T ), "obj" );
+            var propValExpr = Expression.Parameter( propertyInfo.PropertyType, "objValue" );
+            var setMethodExp = Expression.Call( invokeObjExpr, propertyInfo.GetSetMethod( ), propValExpr );
+            var lambda = Expression.Lambda<Action<T,K>>( setMethodExp, invokeObjExpr, propValExpr );
+            lambda.Compile( )( obj, objValue );
         }
 
     }
